@@ -1,2 +1,2 @@
-# Tracker-iOS
+# Tracker-Swift
 Beamon Maps Tracker
