@@ -17,10 +17,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="JWJ-tZ-qyj">
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="JWJ-tZ-qyj">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                             </mapView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" alpha="0.90000000000000002" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BJQ-ta-Ciy">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" alpha="0.90000000000000002" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BJQ-ta-Ciy">
                                 <rect key="frame" x="0.0" y="623" width="375" height="44"/>
                                 <items>
                                     <barButtonItem style="plain" id="3lf-nQ-lgq">
@@ -52,19 +52,21 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="mapLabel" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FK1-7A-OOC">
-                                <rect key="frame" x="0.0" y="584" width="375" height="39"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="0Vn-Yn-34S"/>
+                            <constraint firstAttribute="trailing" secondItem="JWJ-tZ-qyj" secondAttribute="trailing" id="2CD-UI-Ke8"/>
+                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="leading" secondItem="BJQ-ta-Ciy" secondAttribute="leading" id="4hh-lD-dgB"/>
+                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="trailing" secondItem="BJQ-ta-Ciy" secondAttribute="trailing" id="aIw-aX-rVq"/>
+                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="bottom" secondItem="BJQ-ta-Ciy" secondAttribute="bottom" id="iEM-bW-W6l"/>
+                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="oaY-Yc-CUh"/>
+                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="uZH-lF-m4K"/>
+                        </constraints>
                     </view>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
                     <connections>
-                        <outlet property="mapLabel" destination="FK1-7A-OOC" id="cA7-0z-M85"/>
                         <outlet property="mapView" destination="JWJ-tZ-qyj" id="w7i-eX-2lT"/>
                         <outlet property="setTrackingModeControl" destination="975-v0-h0S" id="cjp-3A-oXx"/>
                     </connections>
