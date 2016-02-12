@@ -9,12 +9,12 @@
 import Foundation
 import MapKit
 
-class Artwork: NSObject, MKAnnotation {
+class MyAnnotation: NSObject, MKAnnotation {
     
     let title: String?
     let locationName: String
-    let coordinate: CLLocationCoordinate2D
-    
+    dynamic var coordinate: CLLocationCoordinate2D // http://stackoverflow.com/a/29776550
+
     init(title: String, locationName: String, coordinate: CLLocationCoordinate2D) {
         self.title = title
         self.locationName = locationName
@@ -22,9 +22,9 @@ class Artwork: NSObject, MKAnnotation {
         
         super.init()
     }
-    
+
     var subtitle: String? {
         return locationName
     }
-    
+
 }

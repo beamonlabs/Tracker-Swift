@@ -14,6 +14,7 @@ extension ViewController {
     func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
         
         if(status == .AuthorizedAlways || status == .AuthorizedWhenInUse) {
+            mapView.showsUserLocation = true
             mapView.userTrackingMode = .Follow // zoom to current location and follow
         } else {
             print("LocationManager Status: \(status.rawValue)")
@@ -67,31 +68,11 @@ extension ViewController {
                 storeLocation(location)
             }
             
-            /*
-            if(location.horizontalAccuracy <= 10) {
-                // store location in FirebaseDB
-                storeLocation(location)
-                
-                self.locationManager.stopUpdatingLocation()
-                
-                delay(self.locationUpdateDelay, closure: { self.locationManager.startUpdatingLocation() })
-                
-                //var timer = NSTimer.scheduledTimerWithTimeInterval(self.locationUpdateDelay, target: self, selector: Selector("_locationManagerDidUpdateLocations"), userInfo: nil, repeats: false)
-
-                /*
-                let offset = 60.0
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(offset * Double(NSEC_PER_SEC))), dispatch_get_main_queue(), {
-                    self.locationManager.startUpdatingLocation()
-                })
-                */
-            }
-            */
-            
         }
         
     }
     
-    
+    /*
     func delay(delay:Double, closure:()->()) {
         dispatch_after(
             dispatch_time(
@@ -100,5 +81,6 @@ extension ViewController {
             ),
             dispatch_get_main_queue(), closure)
     }
+    */
     
 }

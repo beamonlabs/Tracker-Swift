@@ -52,6 +52,13 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PiL-Zo-6HL">
+                                <rect key="frame" x="154" y="577" width="67" height="30"/>
+                                <state key="normal" title="Logga in.."/>
+                                <connections>
+                                    <action selector="authenticate:" destination="BYZ-38-t0r" eventType="touchUpInside" id="jTa-fI-3zg"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -67,6 +74,7 @@
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
                     <connections>
+                        <outlet property="authenticateButton" destination="PiL-Zo-6HL" id="w7n-v4-U5t"/>
                         <outlet property="mapView" destination="JWJ-tZ-qyj" id="w7i-eX-2lT"/>
                         <outlet property="setTrackingModeControl" destination="975-v0-h0S" id="cjp-3A-oXx"/>
                     </connections>

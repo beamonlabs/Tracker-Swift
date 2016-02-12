@@ -11,39 +11,45 @@ import Firebase
 import MapKit
 
 extension ViewController {
-
     
     func storeLocation(location: CLLocation) {
-        let charSet = NSCharacterSet(charactersInString: "abcdefghijklmnopqrstuvwxyzåäöüßABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖÜ1234567890- ").invertedSet
-        let sanitizedKey = deviceName.componentsSeparatedByCharactersInSet(charSet).joinWithSeparator("").stringByReplacingOccurrencesOfString(" ", withString: "-")
         
-        let formatter = NSDateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
-        let timestamp = formatter.stringFromDate(location.timestamp)
-        
-        let userLocation = [
-            "timestamp": timestamp,
-            "key": sanitizedKey,
-            "name": deviceName,
-            "email": "@beamonpeople.se",
-            "latitude": location.coordinate.latitude,
-            "longitude": location.coordinate.longitude
-        ]
-        
-        self.activityIndicatorVisible = true
-        
-        // Write data to Firebase
-        firebase.childByAppendingPath("\(sanitizedKey)").setValue(userLocation, withCompletionBlock: {
-            (error:NSError?, ref:Firebase!) in
+        if userDefaults.boolForKey("Authenticated") {
             
-            if(error != nil) {
-                print("Data could not be saved.")
-            } else {
-                //print("Data saved successfully.")
-            }
+            let deviceName = userDefaults.stringForKey("DeviceName") ?? UIDevice.currentDevice().name
+            let fullName = userDefaults.stringForKey("FullName") ?? ""
+            let email = userDefaults.stringForKey("Email") ?? ""
+            
+            let formatter = NSDateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
+            let timestamp = formatter.stringFromDate(location.timestamp)
+            
+            let userLocation:[String : AnyObject] = [
+                "key": deviceName,
+                "fullName": fullName,
+                "email": email,
+                "timestamp": timestamp,
+                "latitude": location.coordinate.latitude,
+                "longitude": location.coordinate.longitude
+            ]
+            
             self.activityIndicatorVisible = true
             
-        })
+            // Write data to Firebase
+            firebase.childByAppendingPath("\(deviceName)").setValue(userLocation, withCompletionBlock: {
+                (error:NSError?, ref:Firebase!) in
+                
+                if(error != nil) {
+                    print("Data could not be saved.")
+                } else {
+                    //print("Data saved successfully.")
+                }
+                self.activityIndicatorVisible = true
+                
+            })
+            
+        }
+
     }
 
     func detachFirebaseEvents() {

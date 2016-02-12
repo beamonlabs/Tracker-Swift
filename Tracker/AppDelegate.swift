@@ -12,10 +12,28 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    
+    var userDefaults = NSUserDefaults.standardUserDefaults()
+    
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
+        let deviceName: String! = {
+            let deviceName = UIDevice.currentDevice().name
+            let charSet = NSCharacterSet(charactersInString: "abcdefghijklmnopqrstuvwxyzåäöüßABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖÜ1234567890- ").invertedSet
+            let sanitized = deviceName.componentsSeparatedByCharactersInSet(charSet).joinWithSeparator("").stringByReplacingOccurrencesOfString(" ", withString: "-")
+            
+            return sanitized
+        }()
+        
+        let settings: [String : AnyObject] = [
+            "DeviceName": deviceName,
+            "Authenticated": false
+        ]
+        
+        userDefaults.registerDefaults(settings)
+        
         return true
     }
 

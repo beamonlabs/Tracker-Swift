@@ -24,25 +24,60 @@ extension ViewController {
             break
         }
     }
-
+    
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-        if let annotation = annotation as? Artwork {
+        
+        /*
+        if annotation.isEqual(mapView.userLocation) {
+            let identifier = "User"
+            
+            var annotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier)
+            
+            if annotationView == nil{
+                annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                annotationView!.canShowCallout = true
+                
+            } else {
+                annotationView!.annotation = annotation
+            }
+            
+            annotationView!.image = UIImage(named: "map-pin")
+            
+            return annotationView
+        }
+        */
+        
+        if let annotation = annotation as? MyAnnotation {
             let identifier = "pin"
             var view: MKAnnotationView
+            
             if let dequeuedView = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier) as? MKPinAnnotationView {
                 dequeuedView.annotation = annotation
                 view = dequeuedView
             } else {
                 view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                view.enabled = true
                 view.canShowCallout = true
-                view.calloutOffset = CGPoint(x: -5, y: 5)
+                //view.image = UIImage(named: "map-pin")
+                //view.calloutOffset = CGPoint(x: -5, y: 5)
+                view.leftCalloutAccessoryView = UIImageView(image: UIImage(named: "map-pin"))
                 view.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
+                //view.detailCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
             }
             
+            view.enabled = true
+
             return view
         }
         return nil
     }
+    
+    func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        print("callout pressed")
+    }
+    
+    
+    
     
     func dropPin(location: CLLocation, title: String) {
         
@@ -69,8 +104,9 @@ extension ViewController {
                 print("Dropped pin for '\(annotation.title!)' at '\(annotation.subtitle!)' <\(location.coordinate.latitude),\(location.coordinate.longitude)>")
                 */
                 
-                let artwork = Artwork(title: title, locationName: locationName!, coordinate: location.coordinate)
-                self.mapView.addAnnotation(artwork)
+                let myAnnotation = MyAnnotation(title: title, locationName: locationName!, coordinate: location.coordinate)
+                self.mapView.addAnnotation(myAnnotation)
+                
                 print("\(title) @ \(locationName!) <\(location.coordinate.latitude),\(location.coordinate.longitude)>")
                 
                 
