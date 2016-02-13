@@ -47,90 +47,53 @@ extension ViewController {
         }
         */
         
-        if let annotation = annotation as? MyAnnotation {
+        if annotation is CustomAnnotation {
             let identifier = "pin"
-            var view: MKAnnotationView
+            var pin = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier)
             
-            if let dequeuedView = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier) as? MKPinAnnotationView {
-                dequeuedView.annotation = annotation
-                view = dequeuedView
+            if pin == nil {
+                pin = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                pin?.image = UIImage(named: "map-pin")
+                pin?.canShowCallout = true
+                pin?.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
             } else {
-                view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-                view.enabled = true
-                view.canShowCallout = true
-                //view.image = UIImage(named: "map-pin")
-                //view.calloutOffset = CGPoint(x: -5, y: 5)
-                view.leftCalloutAccessoryView = UIImageView(image: UIImage(named: "map-pin"))
-                view.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
-                //view.detailCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
+                pin?.annotation = annotation
             }
             
-            view.enabled = true
-
-            return view
+            return pin
         }
+        
         return nil
     }
     
+    // If user selects annotation view for `CustomAnnotation`, then show callout for it. Automatically select
+    // that new callout annotation, too.
+    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+        
+        //print("didSelectAnnotationView")
+
+    }
+
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         print("callout pressed")
     }
     
-    
-    
-    
     func dropPin(location: CLLocation, title: String) {
         
-        //let annotation = MKPointAnnotation()
-        //annotation.coordinate = location.coordinate
+        let annotation = CustomAnnotation()
+        annotation.coordinate = location.coordinate
+        annotation.title = title
+
+        mapView.addAnnotation(annotation)
         
-        let geoCoder = CLGeocoder()
-        geoCoder.reverseGeocodeLocation(location, completionHandler: { (placemark, error) -> Void in
-            if error != nil {
-                print("Error: \(error!.localizedDescription)")
-                return
-            }
-            if placemark!.count > 0 {
-                let pm = placemark![0] as CLPlacemark
-                
-                var addressDictionary = pm.addressDictionary;
-                let locationName = addressDictionary!["Name"] as? String
-                
-                /*
-                annotation.title = pinTitle
-                annotation.subtitle = addressDictionary!["Name"] as? String
-                
-                self.mapView.addAnnotation(annotation)
-                print("Dropped pin for '\(annotation.title!)' at '\(annotation.subtitle!)' <\(location.coordinate.latitude),\(location.coordinate.longitude)>")
-                */
-                
-                let myAnnotation = MyAnnotation(title: title, locationName: locationName!, coordinate: location.coordinate)
-                self.mapView.addAnnotation(myAnnotation)
-                
-                print("\(title) @ \(locationName!) <\(location.coordinate.latitude),\(location.coordinate.longitude)>")
-                
-                
-            } else {
-                print("Error with data")
-            }
-        })
+        /*
+        dispatch_async(dispatch_get_main_queue()) {
+            self.mapView.selectAnnotation(annotation, animated: true)
+        }
+        */
+        
+        //print("\(title) @ __ <\(location.coordinate.latitude),\(location.coordinate.longitude)>")
         
     }
-    
-    /*
-    func zoomToCurrentLocation() {
-    
-        let userLocation:MKUserLocation = self.mapView.userLocation
-        
-        let spanX:Double = 0.007
-        let spanY:Double = 0.007
-        let newRegion = MKCoordinateRegion(center: userLocation.coordinate, span: MKCoordinateSpanMake(spanX, spanY))
-        
-        
-        // center and update location on map
-        mapView.setRegion(newRegion, animated: true)
-        
-    }
-    */
     
 }

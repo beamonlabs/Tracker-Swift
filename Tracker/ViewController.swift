@@ -175,17 +175,33 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
         let saveAction = UIAlertAction(title: "Save", 
             style: .Default) { (action: UIAlertAction!) -> Void in
-                
+
+                // prepare Firebase user key by processing email address
+                let dictKeyFromEmail : Dictionary<String, String> = [
+                    "@beamonpeople.se": "",
+                    ".": " "
+                ]
+
                 if let fullName = ((alert.textFields?.first)! as UITextField).text {
                     self.userDefaults.setValue(fullName, forKey: "FullName")
                 }
+                
                 if let email = ((alert.textFields?.last)! as UITextField).text {
                     self.userDefaults.setValue(email, forKey: "Email")
+
+                    let fbUserKey = Utils.replaceByDict(email, dict: dictKeyFromEmail)
+                    self.userDefaults.setValue(fbUserKey, forKey: "FBUserKey")
                 }
                 
+
+                // TODO: check if all values are set correct
+                
+                
                 self.userDefaults.setBool(true, forKey: "Authenticated")
+                
                 self.attachFirebaseEvents()
                 
+                // hide button
                 sender.hidden = true
         }
         saveAction.enabled = false

@@ -28,3 +28,19 @@ class MyAnnotation: NSObject, MKAnnotation {
     }
 
 }
+
+class CustomAnnotation : MKPointAnnotation {
+    static let geoCoder: CLGeocoder = CLGeocoder()
+
+    // if we set the coordinate, geocode it
+    override var coordinate: CLLocationCoordinate2D {
+        didSet {
+            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            CustomAnnotation.geoCoder.reverseGeocodeLocation(location) { placemarks, error in
+                if let placemark = placemarks?.first {
+                    self.subtitle = placemark.name
+                }
+            }
+        }
+    }
+}
