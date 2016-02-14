@@ -17,21 +17,15 @@ extension ViewController {
             mapView.showsUserLocation = true
             mapView.userTrackingMode = .Follow // zoom to current location and follow
         } else {
-            print("LocationManager Status: \(status.rawValue)")
+            NSLog("LocationManager Status: %@", "\(status.rawValue)")
         }
         
     }
     
     func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
         
-        print("LocationManager Error: \(error.localizedDescription)")
+        NSLog("LocationManager Error: %@", "\(error.localizedDescription)")
         
-    }
-    
-    func _locationManagerDidUpdateLocations() {
-        
-        self.locationManager.startUpdatingLocation()
-    
     }
     
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {

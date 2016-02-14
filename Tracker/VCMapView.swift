@@ -73,27 +73,80 @@ extension ViewController {
         //print("didSelectAnnotationView")
 
     }
-
+    
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        print("callout pressed")
+
+        /*
+        if control == view.rightCalloutAccessoryView {
+            print("Disclosure Pressed! \(view.annotation!.subtitle)")
+            
+            if let cpa = view.annotation as? CustomAnnotation {
+                //print("cpa.imageName = \(cpa.imageName)")
+                print("\(cpa.title)")
+            }
+        }
+        */
+
+        let annotation = view.annotation as! CustomAnnotation
+        if let user = annotation.user {
+            print("callout pressed for \(user.fullName), \(user.email)")
+        }
+        /*
+        if (location.title == "Name 1") {
+            performSegueWithIdentifier("Segue1", sender: self)
+        } else if (location.title == "Name 2")  {
+            performSegueWithIdentifier("Segue2", sender: self)
+        }
+        */
+    
     }
     
-    func dropPin(location: CLLocation, title: String) {
+    //func dropPin(location: CLLocation, title: String, user: FDataSnapshot) {
+    func dropPin(user: User) {
         
+        /*
+        // use this if didset in CustomAnnotation is activated
         let annotation = CustomAnnotation()
-        annotation.coordinate = location.coordinate
-        annotation.title = title
+        annotation.coordinate = user.location.coordinate
+        annotation.title = user.fullName
+        annotation.user = user
 
         mapView.addAnnotation(annotation)
+
+        print("\(user.fullName) @ <\(user.location.coordinate.latitude),\(user.location.coordinate.longitude)>")
+        */
+        
+        
+        let geoCoder = CLGeocoder()
+        geoCoder.reverseGeocodeLocation(user.location, completionHandler: { (placemarks, error) -> Void in
+            if error != nil {
+                print("Error: \(error!.localizedDescription)")
+                return
+            }
+
+            if let placemark = placemarks?.first {
+
+                let annotation = CustomAnnotation()
+                annotation.coordinate = user.location.coordinate
+                annotation.title = user.fullName
+                annotation.subtitle = placemark.name
+                annotation.user = user
+                
+                self.mapView.addAnnotation(annotation)
+
+                print("\(user.fullName) @ \(placemark.name!) <\(user.location.coordinate.latitude),\(user.location.coordinate.longitude)>")
+                
+            } else {
+                print("Error with data")
+            }
+        })
         
         /*
         dispatch_async(dispatch_get_main_queue()) {
             self.mapView.selectAnnotation(annotation, animated: true)
         }
         */
-        
-        //print("\(title) @ __ <\(location.coordinate.latitude),\(location.coordinate.longitude)>")
-        
+
     }
     
 }

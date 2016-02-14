@@ -10,6 +10,22 @@ import Foundation
 import UIKit
 import MapKit
 
+class User {
+
+    var key: String = ""
+    var fullName: String = ""
+    var email: String = ""
+    var location: CLLocation = CLLocation(latitude: 0, longitude: 0)
+    
+    init(key: String, fullName: String, email: String, location: CLLocation) {
+        self.key = key
+        self.fullName = fullName
+        self.email = email
+        self.location = location
+    }
+
+}
+
 // slidenerd.com/2015/09/07/classes-and-objects-in-swift-2/
 // weheartswift.com/object-oriented-programming-swift/
 // code.tutsplus.com/tutorials/swift-from-scratch-an-introduction-to-classes-and-structures--cms-23197

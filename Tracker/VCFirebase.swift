@@ -14,7 +14,7 @@ extension ViewController {
     
     func storeLocation(location: CLLocation) {
         
-        if userDefaults.boolForKey("Authenticated") {
+        if userDefaults.boolForKey("Authenticated") && userDefaults.boolForKey("UpdateLocation") {
             
             let deviceName = userDefaults.stringForKey("DeviceName") ?? UIDevice.currentDevice().name
             let fbUserKey = userDefaults.stringForKey("FBUserKey") ?? deviceName
@@ -58,24 +58,24 @@ extension ViewController {
         
     }
     
-    func attachFirebaseEvents() {
-        
-        /*
-        // just once on app-start: fetch all users locations and set pins
-        firebase.observeSingleEventOfType(.Value, withBlock: { users in
-            
-            //print(users.childrenCount) // I got the expected number of items
-            let enumerator = users.children
-            while let user = enumerator.nextObject() as? FDataSnapshot {
-                self.handleUser(user)
-            }
-            
-            self.activityIndicatorVisible = false
+    func removeFromFirebase() {
 
-            }, withCancelBlock: { error in
-                print(error.description)
+        let deviceName = userDefaults.stringForKey("DeviceName") ?? UIDevice.currentDevice().name
+        let fbUserKey = userDefaults.stringForKey("FBUserKey") ?? deviceName
+
+        firebase.childByAppendingPath("\(fbUserKey)").removeValueWithCompletionBlock({
+            (error:NSError?, ref:Firebase!) in
+            if(error != nil) {
+                print("Data removed")
+            } else {
+                //print("Data saved successfully.")
+            }
         })
-        */
+
+    }
+    
+    
+    func attachFirebaseEvents() {
         
         // Retrieve new posts as they are added to your database -> includes "all" on start
         firebase.observeEventType(.ChildAdded, withBlock: { user in
@@ -119,13 +119,18 @@ extension ViewController {
         if let _title = o.value["fullName"] as? String {
             title = _title
         }
+        let email = o.value["email"] as? String
         
         let latitude = o.value["latitude"] as? Double
         let longitude = o.value["longitude"] as? Double
         if(latitude != nil && longitude != nil) {
             
             let location = CLLocation(latitude: latitude!, longitude: longitude!)
-            self.dropPin(location, title: title)
+
+            // instantiate user
+            let user = User(key: o.key, fullName: title, email: email!, location: location)
+            //self.dropPin(location, title: title, user: o)
+            self.dropPin(user)
             
         } else {
             NSLog("Corrupt FDataSnapshot: %@", title)
@@ -134,7 +139,7 @@ extension ViewController {
     }
     
     func removeUserPin(o: FDataSnapshot) {
-    
+        
         self.mapView.annotations.forEach {
             var title = o.key
             if let _title = o.value["fullName"] as? String {

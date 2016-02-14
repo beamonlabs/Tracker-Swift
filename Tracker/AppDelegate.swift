@@ -19,6 +19,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         
+        // http://stackoverflow.com/questions/30271271/how-to-hide-the-status-bar-programmatically-in-ios-8
+        application.statusBarHidden = true
+        
         let deviceName: String! = {
             let deviceName = UIDevice.currentDevice().name
             let charSet = NSCharacterSet(charactersInString: "abcdefghijklmnopqrstuvwxyzåäöüßABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖÜ1234567890- ").invertedSet
@@ -29,7 +32,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let settings: [String : AnyObject] = [
             "DeviceName": deviceName,
-            "Authenticated": false
+            "Authenticated": false,
+            "UpdateLocation": false
         ]
         
         userDefaults.registerDefaults(settings)

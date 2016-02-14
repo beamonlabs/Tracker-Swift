@@ -13,15 +13,14 @@ import MapKit
 
 class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     
+    @IBOutlet weak var updateLocationSwitch: UISwitch!
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var setTrackingModeControl: UISegmentedControl!
-    @IBOutlet weak var authenticateButton: UIButton!
+    @IBOutlet weak var userDetailButton: UIButton!
     
     
     var firebase: Firebase! // storing users/coordinates
 
-    var locationUpdateDelay:Double = 15.0
-    
     var locationUpdateDistance:Double = 300
     
     var locationLastKnown: CLLocation!
@@ -39,8 +38,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
 
     var userDefaults = NSUserDefaults.standardUserDefaults()
     
-    //let deviceName = UIDevice.currentDevice().name // users device name - instead of GoogleAccountAuth
-    
     var activityIndicatorVisible = UIApplication.sharedApplication().networkActivityIndicatorVisible
 
 
@@ -55,19 +52,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         mapView.delegate = self
         mapView.mapType = .Standard
 
-        /*
-        // http://stackoverflow.com/questions/24056205/how-to-use-background-thread-in-swift
-        let qualityOfServiceClass = QOS_CLASS_BACKGROUND
-        let backgroundQueue = dispatch_get_global_queue(qualityOfServiceClass, 0)
-        dispatch_async(backgroundQueue, {
-            print("This is run on the background queue")
-        
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                print("This is run on the main queue, after the previous code in outer block")
-            })
-        })
-        */
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -79,13 +63,20 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     override func viewWillAppear(animated: Bool) {
         
-        if userDefaults.boolForKey("Authenticated") {
-            NSLog("%@", "Access granted.")
-            self.authenticateButton.hidden = true
-            self.attachFirebaseEvents()
-        } else {
-            self.authenticateButton.hidden = false
-            NSLog("%@", "Access denied.")
+        if userDefaults.boolForKey("Authenticated") { //NSLog("%@", "Access granted.")
+            
+            self.userDetailButton.hidden = false
+            
+            // just when switch is on for location updates
+            if userDefaults.boolForKey("UpdateLocation") {
+                self.updateLocationSwitch.on = true
+                self.attachFirebaseEvents()
+            }
+
+        } else { NSLog("%@", "Access denied.")
+            
+            self.userDetailButton.hidden = true
+            
         }
 
     }
@@ -94,120 +85,86 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
         self.detachFirebaseEvents()
         
-        //locationManager.stopUpdatingHeading()
-        
     }
     
     
     
     
     
-
     
-    @IBAction func setTrackingMode(sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {
-        case 0:
-            self.mapView.userTrackingMode = .Follow
-        case 1:
-            self.mapView.userTrackingMode = .FollowWithHeading
-        default:
-            break
-        }
-    }
-
-    @IBAction func setMapType(sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {
-        case 0:
-            self.mapView.mapType = .Standard
-        case 1:
-            self.mapView.mapType = .Satellite
-        default:
-            break
-        }
-    }
     
-
+    
+    
     
     /*
     func onAuthenticate() {
-        
-        let alertController = UIAlertController(title: "UIAlertController", message: "UIAlertController", preferredStyle: .ActionSheet)
-        
-        let ok = UIAlertAction(title: "Ok", style: .Default, handler: { (action) -> Void in
-            print("Ok Button Pressed")
-        })
-        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) -> Void in
-            print("Cancel Button Pressed")
-        })
-        let  delete = UIAlertAction(title: "Delete", style: .Destructive) { (action) -> Void in
-            print("Delete Button Pressed")
-        }
-        
-        alertController.addAction(ok)
-        alertController.addAction(cancel)
-        alertController.addAction(delete)
-        
-        presentViewController(alertController, animated: true, completion: nil)
-
+    
+    let alertController = UIAlertController(title: "UIAlertController", message: "UIAlertController", preferredStyle: .ActionSheet)
+    
+    let ok = UIAlertAction(title: "Ok", style: .Default, handler: { (action) -> Void in
+    print("Ok Button Pressed")
+    })
+    let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) -> Void in
+    print("Cancel Button Pressed")
+    })
+    let  delete = UIAlertAction(title: "Delete", style: .Destructive) { (action) -> Void in
+    print("Delete Button Pressed")
+    }
+    
+    alertController.addAction(ok)
+    alertController.addAction(cancel)
+    alertController.addAction(delete)
+    
+    presentViewController(alertController, animated: true, completion: nil)
+    
     }
     */
     
     
-    
-    
-
-    //  email validation code method
-    func isValidEmail(testStr:String) -> Bool {
-        //let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
-        let emailRegEx = "[A-Z0-9a-z._%+-]+@beamonpeople\\.se"
-        if let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx) as NSPredicate? {
-            return emailTest.evaluateWithObject(testStr)
-        }
-        return false
-    }
-    
-    @IBAction func authenticate(sender: UIButton) {
-        // https://github.com/mattneub/Programming-iOS-Book-Examples/blob/master/bk2ch13p620dialogsOniPhone/ch26p888dialogsOniPhone/ViewController.swift
-        // http://stackoverflow.com/questions/30596851/how-do-i-validate-textfields-in-an-uialertcontroller
-
+    func requestUserAuthentication() {
         
         let alert = UIAlertController(title: "Fyll i dina uppgifter:", message: nil, preferredStyle: .Alert)
         
-        let saveAction = UIAlertAction(title: "Save", 
+        let saveAction = UIAlertAction(title: "Spara",
             style: .Default) { (action: UIAlertAction!) -> Void in
-
-                // prepare Firebase user key by processing email address
-                let dictKeyFromEmail : Dictionary<String, String> = [
-                    "@beamonpeople.se": "",
-                    ".": " "
-                ]
-
+                
                 if let fullName = ((alert.textFields?.first)! as UITextField).text {
                     self.userDefaults.setValue(fullName, forKey: "FullName")
                 }
                 
                 if let email = ((alert.textFields?.last)! as UITextField).text {
-                    self.userDefaults.setValue(email, forKey: "Email")
-
+                    // prepare Firebase user key by processing email address
+                    let dictKeyFromEmail : Dictionary<String, String> = [
+                        "@beamonpeople.se": "",
+                        ".": " "
+                    ]
                     let fbUserKey = Utils.replaceByDict(email, dict: dictKeyFromEmail)
+                    
+                    self.userDefaults.setValue(email, forKey: "Email")
                     self.userDefaults.setValue(fbUserKey, forKey: "FBUserKey")
                 }
                 
-
-                // TODO: check if all values are set correct
-                
-                
                 self.userDefaults.setBool(true, forKey: "Authenticated")
                 
-                self.attachFirebaseEvents()
+                self.userDetailButton.hidden = false
                 
-                // hide button
-                sender.hidden = true
+                if self.updateLocationSwitch.on {
+                    self.userDefaults.setBool(true, forKey: "UpdateLocation")
+                    self.attachFirebaseEvents()
+                }
+                
         }
         saveAction.enabled = false
         
-        let cancelAction = UIAlertAction(title: "Cancel",
+        let cancelAction = UIAlertAction(title: "Avbryt",
             style: .Default) { (action: UIAlertAction!) -> Void in
+                
+                // if already authenticated, don't reset switch state
+                if !self.userDefaults.boolForKey("Authenticated") {
+                    print("reset Switch")
+                    // reset switch to "off"
+                    self.updateLocationSwitch.on = false
+                }
         }
         
         alert.addTextFieldWithConfigurationHandler {
@@ -244,6 +201,80 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
         self.presentViewController(alert, animated: true, completion: nil)
         
+    }
+    
+
+    
+    
+    
+    @IBAction func setTrackingMode(sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            self.mapView.userTrackingMode = .Follow
+        case 1:
+            self.mapView.userTrackingMode = .FollowWithHeading
+        default:
+            break
+        }
+    }
+
+    @IBAction func setMapType(sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            self.mapView.mapType = .Standard
+        case 1:
+            self.mapView.mapType = .Satellite
+        default:
+            break
+        }
+    }
+
+    // http://www.ioscreator.com/tutorials/uiswitch-tutorial-in-ios8-with-swift
+    @IBAction func onUpdateLocationSwitchChange(sender: UISwitch) {
+        if(updateLocationSwitch.on) {
+            
+            if userDefaults.boolForKey("Authenticated") { //NSLog("%@", "Access granted.")
+                self.userDefaults.setBool(true, forKey: "UpdateLocation")
+                
+                self.locationManager.startUpdatingLocation()
+                self.mapView.userTrackingMode = .Follow // zoom to current location and follow
+                
+                self.attachFirebaseEvents()
+                
+                //let userLocation = self.mapView.userLocation.location
+                //self.storeLocation(userLocation!)
+                
+            } else {
+                self.requestUserAuthentication()
+            }
+
+        } else {
+
+            self.userDefaults.setBool(false, forKey: "UpdateLocation")
+            
+            self.locationManager.stopUpdatingLocation()
+            self.mapView.removeAnnotations(self.mapView.annotations)
+
+            self.detachFirebaseEvents()
+            self.removeFromFirebase()
+        
+        }
+    }
+    
+
+    @IBAction func onUserDetail(sender: UIButton) {
+        self.requestUserAuthentication()
+    }
+
+    
+    //  email validation code method
+    func isValidEmail(testStr:String) -> Bool {
+        //let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@beamonpeople\\.se"
+        if let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx) as NSPredicate? {
+            return emailTest.evaluateWithObject(testStr)
+        }
+        return false
     }
 
 }

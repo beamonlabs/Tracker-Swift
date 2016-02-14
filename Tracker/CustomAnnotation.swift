@@ -9,6 +9,7 @@
 import Foundation
 import MapKit
 
+/*
 class MyAnnotation: NSObject, MKAnnotation {
     
     let title: String?
@@ -28,11 +29,14 @@ class MyAnnotation: NSObject, MKAnnotation {
     }
 
 }
+*/
 
 class CustomAnnotation : MKPointAnnotation {
+    /*
     static let geoCoder: CLGeocoder = CLGeocoder()
 
     // if we set the coordinate, geocode it
+    // ISSUE: not working always/at first time after opening app ???
     override var coordinate: CLLocationCoordinate2D {
         didSet {
             let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
@@ -43,4 +47,7 @@ class CustomAnnotation : MKPointAnnotation {
             }
         }
     }
+    */
+    
+    var user: User?
 }
