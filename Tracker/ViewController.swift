@@ -24,6 +24,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     var locationUpdateDistance:Double = 300
     
     var locationLastKnown: CLLocation!
+
     
     lazy var locationManager: CLLocationManager! = {
         let manager = CLLocationManager()
@@ -32,9 +33,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         manager.allowsBackgroundLocationUpdates = true // this is needed for ios9 to get the location even when it's backgrounded
         manager.distanceFilter = self.locationUpdateDistance
         manager.requestAlwaysAuthorization()
+        manager.pausesLocationUpdatesAutomatically = false // not really documentated - but needed?
 
         return manager
     }()
+    //var locationManager = CLLocationManager() // should take/share settings from AppDelegate
 
     var userDefaults = NSUserDefaults.standardUserDefaults()
     
@@ -44,14 +47,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                
-        firebase = Firebase(url: "https://crackling-torch-7934.firebaseio.com/beamontracker/users")
 
+        firebase = Firebase(url: "https://crackling-torch-7934.firebaseio.com/beamontracker/users")
+        
+        locationManager.delegate = self
         locationManager.startUpdatingLocation() // startMonitoringSignificantLocationChanges()
         
         mapView.delegate = self
         mapView.mapType = .Standard
 
+        
+        //NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("onApplicationDidEnterBackground:"), name:UIApplicationDidEnterBackgroundNotification, object: nil)
     }
 
     override func didReceiveMemoryWarning() {
@@ -90,9 +96,19 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     
     
+    func yourMethodName() {
+        print("called from AppDelegate")
+    }
     
+    /*
+    func onApplicationDidEnterBackground(notification : NSNotification) {
+        print("onApplicationDidEnterBackground method called")
+        
+        //You may call your action method here, when the application did enter background.
+        //ie., self.pauseTimer() in your case.
     
-    
+    }
+    */
     
     
     
@@ -150,6 +166,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
                 
                 if self.updateLocationSwitch.on {
                     self.userDefaults.setBool(true, forKey: "UpdateLocation")
+
+                    // force setting
+                    let userLocation = self.mapView.userLocation.location
+                    self.storeLocation(userLocation!)
+                    
                     self.attachFirebaseEvents()
                 }
                 
@@ -161,7 +182,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
                 
                 // if already authenticated, don't reset switch state
                 if !self.userDefaults.boolForKey("Authenticated") {
-                    print("reset Switch")
                     // reset switch to "off"
                     self.updateLocationSwitch.on = false
                 }
@@ -240,9 +260,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
                 self.mapView.userTrackingMode = .Follow // zoom to current location and follow
                 
                 self.attachFirebaseEvents()
-                
-                //let userLocation = self.mapView.userLocation.location
-                //self.storeLocation(userLocation!)
+
+                // force setting
+                let userLocation = self.mapView.userLocation.location
+                self.storeLocation(userLocation!)
                 
             } else {
                 self.requestUserAuthentication()
@@ -256,7 +277,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             self.mapView.removeAnnotations(self.mapView.annotations)
 
             self.detachFirebaseEvents()
-            self.removeFromFirebase()
+            
+            self.removeFromFirebase() // remove the user from firebase - security reasons
         
         }
     }

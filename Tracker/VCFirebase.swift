@@ -79,35 +79,35 @@ extension ViewController {
         
         // Retrieve new posts as they are added to your database -> includes "all" on start
         firebase.observeEventType(.ChildAdded, withBlock: { user in
-            //print("ChildAdded \(user.value.objectForKey("fullName"))")
 
             self.handleUser(user)
             self.activityIndicatorVisible = false
             
             }, withCancelBlock: { error in
                 print(error.description)
+
         })
         
         // when one of the users has updated coordinates
         firebase.queryOrderedByKey().observeEventType(.ChildChanged, withBlock: { user in
-            //print("ChildChanged \(user.value.objectForKey("fullName"))")
 
-            self.removeUserPin(user)
-            self.handleUser(user)
+            self.updateUserPin(user)
+            //self.handleUser(user)
             self.activityIndicatorVisible = false
             
             }, withCancelBlock: { error in
                 print(error.description)
+
         })
 
         // Retrieve new posts as they are added to your database
         firebase.observeEventType(.ChildRemoved, withBlock: { user in
-            //print("ChildRemoved \(user.value.objectForKey("fullName"))")
             
             self.removeUserPin(user)
             
             }, withCancelBlock: { error in
                 print(error.description)
+
         })
 
     }
@@ -115,42 +115,96 @@ extension ViewController {
     // Helper method
     func handleUser(o: FDataSnapshot) {
         
-        var title = o.key
-        if let _title = o.value["fullName"] as? String {
-            title = _title
-        }
-        let email = o.value["email"] as? String
+        let user = self.getUserForFDataSnapshot(o)
+        let latitude = user.location.coordinate.latitude
+        let longitude = user.location.coordinate.longitude
         
-        let latitude = o.value["latitude"] as? Double
-        let longitude = o.value["longitude"] as? Double
-        if(latitude != nil && longitude != nil) {
+        // check if the user to handle is the "user" self > don't set pin for
+        let isUserSelf : Bool = {
+            if let userDefaultsFullName = self.userDefaults.stringForKey("FullName") {
+                return (user.fullName == userDefaultsFullName)
+            }
+            return false
+        }()
+        
+        if(isUserSelf) {
+            return
+        }
+        
+        if(latitude != 0 && longitude != 0) {
             
-            let location = CLLocation(latitude: latitude!, longitude: longitude!)
+            self.dropPinForUser(user)
 
-            // instantiate user
-            let user = User(key: o.key, fullName: title, email: email!, location: location)
-            //self.dropPin(location, title: title, user: o)
-            self.dropPin(user)
-            
         } else {
-            NSLog("Corrupt FDataSnapshot: %@", title)
+            NSLog("Corrupt FDataSnapshot: %@", user.key)
+        }
+        
+    }
+
+    func updateUserPin(o: FDataSnapshot) {
+        
+        for mapViewAnnotation in self.mapView.annotations {
+            
+            let user = self.getUserForFDataSnapshot(o)
+            
+            if user.fullName == mapViewAnnotation.title!! {
+                let annotation = mapViewAnnotation as! CustomAnnotation
+                annotation.coordinate = user.location.coordinate
+
+                print("[UPDATED] \(annotation.title!) @ \(annotation.subtitle!) <\(annotation.coordinate.latitude),\(annotation.coordinate.longitude)>")
+            }
+            
         }
         
     }
     
     func removeUserPin(o: FDataSnapshot) {
         
-        self.mapView.annotations.forEach {
-            var title = o.key
-            if let _title = o.value["fullName"] as? String {
-                title = _title
+        for mapViewAnnotation in self.mapView.annotations {
+            
+            let user = self.getUserForFDataSnapshot(o)
+            
+            if user.fullName == mapViewAnnotation.title!! {
+
+                self.mapView.removeAnnotation(mapViewAnnotation)
+                
+                print("[REMOVED] \(user.fullName)")
+                
             }
-            if ($0.title!! == title) {
-                //print("Change: should remove pin for '\($0.title!!)'")
-                self.mapView.removeAnnotation($0)
-            }
+            
         }
     
+    }
+    
+    func getUserForFDataSnapshot(o: FDataSnapshot) -> User {
+        
+        let key: String = o.key
+        
+        var location = CLLocation(latitude: 0, longitude: 0)
+
+        var fullName: String = key
+        
+        var email: String = ""
+
+        let latitude = o.value["latitude"] as? Double
+        
+        let longitude = o.value["longitude"] as? Double
+        
+        
+        if let _title = o.value["fullName"] as? String {
+            fullName = _title
+        }
+        
+        if let _email = o.value["email"] as? String {
+            email = _email
+        }
+        
+        if(latitude != nil && longitude != nil) {
+            location = CLLocation(latitude: latitude!, longitude: longitude!)
+        }
+    
+        
+        return User(key: key, fullName: fullName, email: email, location: location)
     }
     
 }

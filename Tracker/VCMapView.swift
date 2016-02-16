@@ -26,27 +26,7 @@ extension ViewController {
     }
     
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-        
-        /*
-        if annotation.isEqual(mapView.userLocation) {
-            let identifier = "User"
-            
-            var annotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier)
-            
-            if annotationView == nil{
-                annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-                annotationView!.canShowCallout = true
-                
-            } else {
-                annotationView!.annotation = annotation
-            }
-            
-            annotationView!.image = UIImage(named: "map-pin")
-            
-            return annotationView
-        }
-        */
-        
+
         if annotation is CustomAnnotation {
             let identifier = "pin"
             var pin = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier)
@@ -76,48 +56,17 @@ extension ViewController {
     
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
 
-        /*
-        if control == view.rightCalloutAccessoryView {
-            print("Disclosure Pressed! \(view.annotation!.subtitle)")
-            
-            if let cpa = view.annotation as? CustomAnnotation {
-                //print("cpa.imageName = \(cpa.imageName)")
-                print("\(cpa.title)")
-            }
-        }
-        */
-
         let annotation = view.annotation as! CustomAnnotation
         if let user = annotation.user {
             print("callout pressed for \(user.fullName), \(user.email)")
         }
-        /*
-        if (location.title == "Name 1") {
-            performSegueWithIdentifier("Segue1", sender: self)
-        } else if (location.title == "Name 2")  {
-            performSegueWithIdentifier("Segue2", sender: self)
-        }
-        */
     
     }
     
-    //func dropPin(location: CLLocation, title: String, user: FDataSnapshot) {
-    func dropPin(user: User) {
-        
-        /*
-        // use this if didset in CustomAnnotation is activated
-        let annotation = CustomAnnotation()
-        annotation.coordinate = user.location.coordinate
-        annotation.title = user.fullName
-        annotation.user = user
+    func dropPinForUser(user: User) {
 
-        mapView.addAnnotation(annotation)
-
-        print("\(user.fullName) @ <\(user.location.coordinate.latitude),\(user.location.coordinate.longitude)>")
-        */
-        
-        
         let geoCoder = CLGeocoder()
+
         geoCoder.reverseGeocodeLocation(user.location, completionHandler: { (placemarks, error) -> Void in
             if error != nil {
                 print("Error: \(error!.localizedDescription)")
