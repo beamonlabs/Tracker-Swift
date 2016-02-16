@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
         // Override point for customization after application launch.
         
         // http://stackoverflow.com/questions/30271271/how-to-hide-the-status-bar-programmatically-in-ios-8
-        application.statusBarHidden = true
+        //application.statusBarHidden = true
         
         let deviceName: String! = {
             let deviceName = UIDevice.currentDevice().name

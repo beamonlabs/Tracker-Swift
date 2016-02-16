@@ -18,28 +18,24 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="JWJ-tZ-qyj">
-                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                             </mapView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" alpha="0.90000000000000002" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BJQ-ta-Ciy">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="s9Z-1V-i49">
                                 <rect key="frame" x="0.0" y="623" width="375" height="44"/>
                                 <items>
-                                    <barButtonItem style="plain" id="3lf-nQ-lgq">
-                                        <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="Nnr-7u-joQ">
-                                            <rect key="frame" x="16" y="7.5" width="155" height="29"/>
+                                    <barButtonItem title="Item" id="PBl-zJ-w39">
+                                        <switch key="customView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="left" contentVerticalAlignment="top" id="3f9-cN-RWq">
+                                            <rect key="frame" x="16" y="6.5" width="51" height="31"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <segments>
-                                                <segment title="Karta"/>
-                                                <segment title="Satellit"/>
-                                            </segments>
                                             <connections>
-                                                <action selector="setMapType:" destination="BYZ-38-t0r" eventType="valueChanged" id="Hq1-Cw-Z5A"/>
+                                                <action selector="onUpdateLocationSwitchChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="vcU-TW-WEo"/>
                                             </connections>
-                                        </segmentedControl>
+                                        </switch>
                                     </barButtonItem>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="u7h-rm-XA9"/>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="KRm-yl-AxT"/>
                                     <barButtonItem style="plain" id="v0X-hb-awE">
                                         <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="975-v0-h0S">
-                                            <rect key="frame" x="204" y="7" width="155" height="30"/>
+                                            <rect key="frame" x="110" y="7" width="155" height="30"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <segments>
                                                 <segment title="Följ"/>
@@ -50,46 +46,28 @@
                                             </connections>
                                         </segmentedControl>
                                     </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="37E-6f-2Gn"/>
+                                    <barButtonItem title="Item" id="qWZ-Gd-yEW">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="detailDisclosure" lineBreakMode="middleTruncation" id="uLG-vU-aCp">
+                                            <rect key="frame" x="337" y="11" width="22" height="22"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <connections>
+                                                <action selector="onInfoButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qAr-JX-nsL"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
-                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MSK-5j-bLt">
-                                <rect key="frame" x="0.0" y="20" width="375" height="44"/>
-                                <items>
-                                    <navigationItem title="Beamon Tracker" id="ybl-BC-7td">
-                                        <barButtonItem key="leftBarButtonItem" title="Item" id="PBl-zJ-w39">
-                                            <switch key="customView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="left" contentVerticalAlignment="top" id="3f9-cN-RWq">
-                                                <rect key="frame" x="16" y="6" width="51" height="31"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <connections>
-                                                    <action selector="onUpdateLocationSwitchChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="vcU-TW-WEo"/>
-                                                </connections>
-                                            </switch>
-                                        </barButtonItem>
-                                        <barButtonItem key="rightBarButtonItem" title="Item" id="qWZ-Gd-yEW">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="detailDisclosure" lineBreakMode="middleTruncation" id="uLG-vU-aCp">
-                                                <rect key="frame" x="337" y="11" width="22" height="22"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <connections>
-                                                    <action selector="onUserDetail:" destination="BYZ-38-t0r" eventType="touchUpInside" id="07a-Df-zzL"/>
-                                                </connections>
-                                            </button>
-                                        </barButtonItem>
-                                    </navigationItem>
-                                </items>
-                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="MSK-5j-bLt" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="0ra-Qj-QcB"/>
                             <constraint firstAttribute="trailing" secondItem="JWJ-tZ-qyj" secondAttribute="trailing" id="2wM-Jj-3Da"/>
-                            <constraint firstItem="MSK-5j-bLt" firstAttribute="trailing" secondItem="JWJ-tZ-qyj" secondAttribute="trailing" id="8bH-xw-KA5"/>
                             <constraint firstItem="JWJ-tZ-qyj" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="9oE-Ga-lBF"/>
-                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="leading" secondItem="BJQ-ta-Ciy" secondAttribute="leading" id="BGy-dI-qYi"/>
-                            <constraint firstItem="MSK-5j-bLt" firstAttribute="leading" secondItem="JWJ-tZ-qyj" secondAttribute="leading" id="BnW-7I-gAx"/>
-                            <constraint firstItem="MSK-5j-bLt" firstAttribute="bottom" secondItem="JWJ-tZ-qyj" secondAttribute="top" id="Eju-67-Vw5"/>
                             <constraint firstItem="JWJ-tZ-qyj" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="J3k-Qq-LAA"/>
-                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="bottom" secondItem="BJQ-ta-Ciy" secondAttribute="bottom" id="Jx2-dD-4NH"/>
-                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="trailing" secondItem="BJQ-ta-Ciy" secondAttribute="trailing" id="KNJ-Lo-dj9"/>
+                            <constraint firstItem="s9Z-1V-i49" firstAttribute="leading" secondItem="JWJ-tZ-qyj" secondAttribute="leading" id="S2C-bs-Fjn"/>
+                            <constraint firstItem="s9Z-1V-i49" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="eND-is-oQv"/>
+                            <constraint firstItem="JWJ-tZ-qyj" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="sMh-RW-DFh"/>
+                            <constraint firstItem="s9Z-1V-i49" firstAttribute="trailing" secondItem="JWJ-tZ-qyj" secondAttribute="trailing" id="ygf-KB-DmS"/>
                         </constraints>
                     </view>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
@@ -98,7 +76,7 @@
                         <outlet property="mapView" destination="JWJ-tZ-qyj" id="w7i-eX-2lT"/>
                         <outlet property="setTrackingModeControl" destination="975-v0-h0S" id="cjp-3A-oXx"/>
                         <outlet property="updateLocationSwitch" destination="3f9-cN-RWq" id="0wd-Sk-uAJ"/>
-                        <outlet property="userDetailButton" destination="uLG-vU-aCp" id="kDi-Yi-e5u"/>
+                        <outlet property="userDetailButton" destination="uLG-vU-aCp" id="PHd-1r-1Zv"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

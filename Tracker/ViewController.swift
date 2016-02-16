@@ -18,7 +18,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     @IBOutlet weak var setTrackingModeControl: UISegmentedControl!
     @IBOutlet weak var userDetailButton: UIButton!
     
-    
+
     var firebase: Firebase! // storing users/coordinates
 
     var locationUpdateDistance:Double = 300
@@ -71,8 +71,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
         if userDefaults.boolForKey("Authenticated") { //NSLog("%@", "Access granted.")
             
-            self.userDetailButton.hidden = false
-            
             // just when switch is on for location updates
             if userDefaults.boolForKey("UpdateLocation") {
                 self.updateLocationSwitch.on = true
@@ -80,8 +78,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             }
 
         } else { NSLog("%@", "Access denied.")
-            
-            self.userDetailButton.hidden = true
             
         }
 
@@ -112,6 +108,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     
     
+    
     /*
     func onAuthenticate() {
     
@@ -139,7 +136,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     func requestUserAuthentication() {
         
-        let alert = UIAlertController(title: "Fyll i dina uppgifter:", message: nil, preferredStyle: .Alert)
+        let alert = UIAlertController(title: "Användarinformation", message: nil, preferredStyle: .Alert)
         
         let saveAction = UIAlertAction(title: "Spara",
             style: .Default) { (action: UIAlertAction!) -> Void in
@@ -238,6 +235,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         }
     }
 
+    /*
     @IBAction func setMapType(sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
@@ -248,6 +246,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             break
         }
     }
+    */
 
     // http://www.ioscreator.com/tutorials/uiswitch-tutorial-in-ios8-with-swift
     @IBAction func onUpdateLocationSwitchChange(sender: UISwitch) {
@@ -284,8 +283,44 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     }
     
 
-    @IBAction func onUserDetail(sender: UIButton) {
-        self.requestUserAuthentication()
+    @IBAction func onInfoButton(sender: UIButton) {
+        
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+        
+        let userDetails = UIAlertAction(title: "Användarinformation", style: .Default, handler: { (action) -> Void in
+            self.requestUserAuthentication()
+        })
+        
+        let mapTypeDefault = UIAlertAction(title: "Karta", style: .Default, handler: { (action) -> Void in
+            self.mapView.mapType = .Standard
+        })
+        
+        let mapTypeSatellite = UIAlertAction(title: "Satellit", style: .Default, handler: { (action) -> Void in
+            self.mapView.mapType = .Satellite
+        })
+        
+        let cancel = UIAlertAction(title: "Avbryt", style: .Cancel, handler: { (action) -> Void in
+            // TODO
+        })
+        
+        
+        if userDefaults.boolForKey("Authenticated") {
+            alertController.addAction(userDetails)
+        }
+    
+        switch mapView.mapType {
+        case .Standard:
+            alertController.addAction(mapTypeSatellite)
+        case .Satellite:
+            alertController.addAction(mapTypeDefault)
+        default:
+            break
+        }
+        
+        alertController.addAction(cancel)
+        
+        presentViewController(alertController, animated: true, completion: nil)
+
     }
 
     
