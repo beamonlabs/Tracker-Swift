@@ -37,7 +37,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
 
         return manager
     }()
-    //var locationManager = CLLocationManager() // should take/share settings from AppDelegate
 
     var userDefaults = NSUserDefaults.standardUserDefaults()
     
@@ -46,6 +45,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
 
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
 
         firebase = Firebase(url: "https://crackling-torch-7934.firebaseio.com/beamontracker/users")
@@ -56,8 +56,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         mapView.delegate = self
         mapView.mapType = .Standard
 
-        
-        //NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("onApplicationDidEnterBackground:"), name:UIApplicationDidEnterBackgroundNotification, object: nil)
     }
 
     override func didReceiveMemoryWarning() {
@@ -88,51 +86,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         self.detachFirebaseEvents()
         
     }
-    
-    
-    
-    
-    func yourMethodName() {
-        print("called from AppDelegate")
-    }
-    
-    /*
-    func onApplicationDidEnterBackground(notification : NSNotification) {
-        print("onApplicationDidEnterBackground method called")
-        
-        //You may call your action method here, when the application did enter background.
-        //ie., self.pauseTimer() in your case.
-    
-    }
-    */
-    
-    
-    
-    
-    /*
-    func onAuthenticate() {
-    
-    let alertController = UIAlertController(title: "UIAlertController", message: "UIAlertController", preferredStyle: .ActionSheet)
-    
-    let ok = UIAlertAction(title: "Ok", style: .Default, handler: { (action) -> Void in
-    print("Ok Button Pressed")
-    })
-    let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) -> Void in
-    print("Cancel Button Pressed")
-    })
-    let  delete = UIAlertAction(title: "Delete", style: .Destructive) { (action) -> Void in
-    print("Delete Button Pressed")
-    }
-    
-    alertController.addAction(ok)
-    alertController.addAction(cancel)
-    alertController.addAction(delete)
-    
-    presentViewController(alertController, animated: true, completion: nil)
-    
-    }
-    */
-    
     
     func requestUserAuthentication() {
         
@@ -235,19 +188,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         }
     }
 
-    /*
-    @IBAction func setMapType(sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {
-        case 0:
-            self.mapView.mapType = .Standard
-        case 1:
-            self.mapView.mapType = .Satellite
-        default:
-            break
-        }
-    }
-    */
-
     // http://www.ioscreator.com/tutorials/uiswitch-tutorial-in-ios8-with-swift
     @IBAction func onUpdateLocationSwitchChange(sender: UISwitch) {
         if(updateLocationSwitch.on) {
@@ -281,7 +221,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
         }
     }
-    
 
     @IBAction func onInfoButton(sender: UIButton) {
         

@@ -7,23 +7,6 @@
 //
 
 import Foundation
-
-/*
-extension String {
-    
-    mutating func replace(string:String, replacement:String) {
-        let ranges = self.rangesOfString(string)
-        // if the string isn't found return unchanged string
-    
-        for r in ranges {
-            self.replaceRange(r, with: replacement)
-        }
-    }
-
-}
-
-"ReplaceMe".replace("Me", withString: "You") == "ReplaceYou"
-*/
     
 class Utils {
     
