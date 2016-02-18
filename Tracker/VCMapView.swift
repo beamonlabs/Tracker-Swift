@@ -46,14 +46,6 @@ extension ViewController {
         return nil
     }
     
-    // If user selects annotation view for `CustomAnnotation`, then show callout for it. Automatically select
-    // that new callout annotation, too.
-    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
-        
-        //print("didSelectAnnotationView")
-
-    }
-    
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
 
         let annotation = view.annotation as! CustomAnnotation
@@ -93,4 +85,14 @@ extension ViewController {
 
     }
     
+    /*
+    // If user selects annotation view for `CustomAnnotation`, then show callout for it. Automatically select
+    // that new callout annotation, too.
+    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+    
+    print("didSelectAnnotationView")
+    
+    }
+    */
+
 }
