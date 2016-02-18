@@ -148,9 +148,19 @@ extension ViewController {
             let user = self.getUserForFDataSnapshot(o)
             
             if user.fullName == mapViewAnnotation.title!! {
+                let geoCoder = CLGeocoder()
+
                 let annotation = mapViewAnnotation as! CustomAnnotation
                 annotation.coordinate = user.location.coordinate
 
+                // reverse geocode
+                let location = CLLocation(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
+                geoCoder.reverseGeocodeLocation(location) { placemarks, error in
+                    if let placemark = placemarks?.first {
+                        annotation.subtitle = placemark.name
+                    }
+                }
+                
                 print("[UPDATED] \(annotation.title!) @ \(annotation.subtitle!) <\(annotation.coordinate.latitude),\(annotation.coordinate.longitude)>")
             }
             

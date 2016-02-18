@@ -66,13 +66,11 @@ extension ViewController {
     func dropPinForUser(user: User) {
 
         let geoCoder = CLGeocoder()
+        let userLocation = user.location.coordinate
+        let location = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
 
-        geoCoder.reverseGeocodeLocation(user.location, completionHandler: { (placemarks, error) -> Void in
-            if error != nil {
-                print("Error: \(error!.localizedDescription)")
-                return
-            }
-
+        // reverse geocode
+        geoCoder.reverseGeocodeLocation(location) { placemarks, error in
             if let placemark = placemarks?.first {
 
                 let annotation = CustomAnnotation()
@@ -80,15 +78,12 @@ extension ViewController {
                 annotation.title = user.fullName
                 annotation.subtitle = placemark.name
                 annotation.user = user
-                
                 self.mapView.addAnnotation(annotation)
 
-                print("\(user.fullName) @ \(placemark.name!) <\(user.location.coordinate.latitude),\(user.location.coordinate.longitude)>")
-                
-            } else {
-                print("Error with data")
+                print("[PINNED] \(annotation.title!) @ \(annotation.subtitle!) <\(annotation.coordinate.latitude),\(annotation.coordinate.longitude)>")
+
             }
-        })
+        }
         
         /*
         dispatch_async(dispatch_get_main_queue()) {
