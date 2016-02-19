@@ -35,7 +35,7 @@ extension ViewController {
                 pin = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
                 pin?.image = UIImage(named: "map-pin")
                 pin?.canShowCallout = true
-                pin?.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
+                //pin?.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
             } else {
                 pin?.annotation = annotation
             }
@@ -46,6 +46,7 @@ extension ViewController {
         return nil
     }
     
+    /*
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
 
         let annotation = view.annotation as! CustomAnnotation
@@ -53,6 +54,14 @@ extension ViewController {
             print("callout pressed for \(user.fullName), \(user.email)")
         }
     
+    }
+    */
+    
+    
+    
+    // delegate
+    func willDropPinForUser(user: User) {
+        self.dropPinForUser(user)
     }
     
     func dropPinForUser(user: User) {
@@ -84,6 +93,47 @@ extension ViewController {
         */
 
     }
+
+    // delegate
+    func willUpdatePinForUser(user: User) {
+        for mapViewAnnotation in self.mapView.annotations {
+            
+            if user.fullName == mapViewAnnotation.title!! {
+                let geoCoder = CLGeocoder()
+                
+                let annotation = mapViewAnnotation as! CustomAnnotation
+                annotation.coordinate = user.location.coordinate
+                
+                // reverse geocode
+                let location = CLLocation(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
+                geoCoder.reverseGeocodeLocation(location) { placemarks, error in
+                    if let placemark = placemarks?.first {
+                        annotation.subtitle = placemark.name
+                    }
+                }
+                
+                print("[UPDATED] \(annotation.title!) @ \(annotation.subtitle!) <\(annotation.coordinate.latitude),\(annotation.coordinate.longitude)>")
+            }
+            
+        }
+    }
+    
+    // delegate
+    func willRemovePinForUser(user: User) {
+        for mapViewAnnotation in self.mapView.annotations {
+            
+            if user.fullName == mapViewAnnotation.title!! {
+                
+                self.mapView.removeAnnotation(mapViewAnnotation)
+                
+                print("[REMOVED] \(user.fullName)")
+                
+            }
+            
+        }
+    }
+    
+    
     
     /*
     // If user selects annotation view for `CustomAnnotation`, then show callout for it. Automatically select

@@ -1,8 +1,8 @@
 //
-//  VCFirebase.swift
+//  Firebase.swift
 //  Tracker
 //
-//  Created by Stefan Dressler on 2016-02-11.
+//  Created by Stefan Dressler on 2016-02-19.
 //  Copyright © 2016 Beamon People AB. All rights reserved.
 //
 
@@ -10,7 +10,92 @@ import Foundation
 import Firebase
 import MapKit
 
-extension ViewController {
+protocol FirebaseDBDelegate {
+    func didAttachFirebaseEvents()
+    func didSetLocation(location: CLLocation)
+    func willDropPinForUser(user: User)
+    func willUpdatePinForUser(user: User)
+    func willRemovePinForUser(user: User)
+}
+
+class FirebaseDB {
+
+    var ref: Firebase!
+    
+    var delegate: FirebaseDBDelegate!
+    
+    var userDefaults = NSUserDefaults.standardUserDefaults()
+
+    var activityIndicatorVisible = UIApplication.sharedApplication().networkActivityIndicatorVisible
+
+    init() {
+        self.ref = Firebase(url: "https://crackling-torch-7934.firebaseio.com/beamontracker/users")
+    }
+
+    
+    
+    
+    func attachEvents() {
+        
+        if userDefaults.boolForKey("Authenticated") { //NSLog("%@", "Access granted.")
+            
+            // just when switch is on for location updates
+            if userDefaults.boolForKey("UpdateLocation") {
+                
+                //self.updateLocationSwitch.on = true
+                self.delegate.didAttachFirebaseEvents() // notify observers
+                
+                // Retrieve new posts as they are added to your database -> includes "all" on start
+                ref.observeEventType(.ChildAdded, withBlock: { user in
+                    
+                    self.handleUser(user)
+                    
+                    self.activityIndicatorVisible = false
+                    
+                    }, withCancelBlock: { error in
+                        print(error.description)
+                        
+                })
+                
+                // when one of the users has updated coordinates
+                ref.queryOrderedByKey().observeEventType(.ChildChanged, withBlock: { user in
+                    
+                    let _user = self.getUserForFDataSnapshot(user)
+                    
+                    self.delegate.willUpdatePinForUser(_user)
+
+                    self.activityIndicatorVisible = false
+                    
+                    }, withCancelBlock: { error in
+                        print(error.description)
+                        
+                })
+                
+                // Retrieve new posts as they are added to your database
+                ref.observeEventType(.ChildRemoved, withBlock: { user in
+                    
+                    let _user = self.getUserForFDataSnapshot(user)
+                    
+                    self.delegate.willRemovePinForUser(_user)
+                    
+                    }, withCancelBlock: { error in
+                        print(error.description)
+                        
+                })
+                
+            }
+            
+        } else { NSLog("%@", "Access denied.")
+            
+        }
+        
+    }
+    
+    func detachEvents() {
+        
+        ref.removeAllObservers()
+        
+    }
     
     func storeLocation(location: CLLocation) {
         
@@ -36,12 +121,15 @@ extension ViewController {
             self.activityIndicatorVisible = true
             
             // Write data to Firebase
-            firebase.childByAppendingPath("\(fbUserKey)").setValue(userLocation, withCompletionBlock: {
+            ref.childByAppendingPath("\(fbUserKey)").setValue(userLocation, withCompletionBlock: {
                 (error:NSError?, ref:Firebase!) in
                 
                 if(error != nil) {
                     print("Data could not be saved.")
                 } else {
+                    
+                    self.delegate.didSetLocation(location)
+                    
                     //print("Data saved successfully.")
                 }
                 self.activityIndicatorVisible = true
@@ -49,21 +137,15 @@ extension ViewController {
             })
             
         }
-
-    }
-
-    func detachFirebaseEvents() {
-        
-        firebase.removeAllObservers()
         
     }
     
-    func removeFromFirebase() {
-
+    func remove() {
+        
         let deviceName = userDefaults.stringForKey("DeviceName") ?? UIDevice.currentDevice().name
         let fbUserKey = userDefaults.stringForKey("FBUserKey") ?? deviceName
-
-        firebase.childByAppendingPath("\(fbUserKey)").removeValueWithCompletionBlock({
+        
+        ref.childByAppendingPath("\(fbUserKey)").removeValueWithCompletionBlock({
             (error:NSError?, ref:Firebase!) in
             if(error != nil) {
                 print("Data removed")
@@ -71,45 +153,7 @@ extension ViewController {
                 //print("Data saved successfully.")
             }
         })
-
-    }
-    
-    
-    func attachFirebaseEvents() {
         
-        // Retrieve new posts as they are added to your database -> includes "all" on start
-        firebase.observeEventType(.ChildAdded, withBlock: { user in
-
-            self.handleUser(user)
-            self.activityIndicatorVisible = false
-            
-            }, withCancelBlock: { error in
-                print(error.description)
-
-        })
-        
-        // when one of the users has updated coordinates
-        firebase.queryOrderedByKey().observeEventType(.ChildChanged, withBlock: { user in
-
-            self.updateUserPin(user)
-            //self.handleUser(user)
-            self.activityIndicatorVisible = false
-            
-            }, withCancelBlock: { error in
-                print(error.description)
-
-        })
-
-        // Retrieve new posts as they are added to your database
-        firebase.observeEventType(.ChildRemoved, withBlock: { user in
-            
-            self.removeUserPin(user)
-            
-            }, withCancelBlock: { error in
-                print(error.description)
-
-        })
-
     }
     
     // Helper method
@@ -133,57 +177,12 @@ extension ViewController {
         
         if(latitude != 0 && longitude != 0) {
             
-            self.dropPinForUser(user)
-
+            self.delegate.willDropPinForUser(user)
+            
         } else {
             NSLog("Corrupt FDataSnapshot: %@", user.key)
         }
         
-    }
-
-    func updateUserPin(o: FDataSnapshot) {
-        
-        for mapViewAnnotation in self.mapView.annotations {
-            
-            let user = self.getUserForFDataSnapshot(o)
-            
-            if user.fullName == mapViewAnnotation.title!! {
-                let geoCoder = CLGeocoder()
-
-                let annotation = mapViewAnnotation as! CustomAnnotation
-                annotation.coordinate = user.location.coordinate
-
-                // reverse geocode
-                let location = CLLocation(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
-                geoCoder.reverseGeocodeLocation(location) { placemarks, error in
-                    if let placemark = placemarks?.first {
-                        annotation.subtitle = placemark.name
-                    }
-                }
-                
-                print("[UPDATED] \(annotation.title!) @ \(annotation.subtitle!) <\(annotation.coordinate.latitude),\(annotation.coordinate.longitude)>")
-            }
-            
-        }
-        
-    }
-    
-    func removeUserPin(o: FDataSnapshot) {
-        
-        for mapViewAnnotation in self.mapView.annotations {
-            
-            let user = self.getUserForFDataSnapshot(o)
-            
-            if user.fullName == mapViewAnnotation.title!! {
-
-                self.mapView.removeAnnotation(mapViewAnnotation)
-                
-                print("[REMOVED] \(user.fullName)")
-                
-            }
-            
-        }
-    
     }
     
     func getUserForFDataSnapshot(o: FDataSnapshot) -> User {
@@ -191,11 +190,11 @@ extension ViewController {
         let key: String = o.key
         
         var location = CLLocation(latitude: 0, longitude: 0)
-
+        
         var fullName: String = key
         
         var email: String = ""
-
+        
         let latitude = o.value["latitude"] as? Double
         
         let longitude = o.value["longitude"] as? Double
@@ -212,7 +211,7 @@ extension ViewController {
         if(latitude != nil && longitude != nil) {
             location = CLLocation(latitude: latitude!, longitude: longitude!)
         }
-    
+        
         
         return User(key: key, fullName: fullName, email: email, location: location)
     }

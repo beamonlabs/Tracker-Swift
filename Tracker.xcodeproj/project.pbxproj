@@ -19,8 +19,9 @@
 		F824B3CB1C6B681A00B84A51 /* VCMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F824B3CA1C6B681A00B84A51 /* VCMapView.swift */; };
 		F824B3CD1C6B737B00B84A51 /* VCLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F824B3CC1C6B737B00B84A51 /* VCLocationManager.swift */; };
 		F824B3CF1C6CC90400B84A51 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F824B3CE1C6CC90400B84A51 /* User.swift */; };
-		F824B3D11C6D213D00B84A51 /* VCFirebase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F824B3D01C6D213D00B84A51 /* VCFirebase.swift */; };
 		F824B3D31C6FD5E100B84A51 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F824B3D21C6FD5E100B84A51 /* Utils.swift */; };
+		F860E1701C77AD0500A1E3E1 /* Firebase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F860E16F1C77AD0500A1E3E1 /* Firebase.swift */; };
+		F860E1721C77BBE800A1E3E1 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F860E1711C77BBE800A1E3E1 /* Observer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,8 +62,9 @@
 		F824B3CA1C6B681A00B84A51 /* VCMapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VCMapView.swift; sourceTree = "<group>"; };
 		F824B3CC1C6B737B00B84A51 /* VCLocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VCLocationManager.swift; sourceTree = "<group>"; };
 		F824B3CE1C6CC90400B84A51 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		F824B3D01C6D213D00B84A51 /* VCFirebase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VCFirebase.swift; sourceTree = "<group>"; };
 		F824B3D21C6FD5E100B84A51 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		F860E16F1C77AD0500A1E3E1 /* Firebase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Firebase.swift; sourceTree = "<group>"; };
+		F860E1711C77BBE800A1E3E1 /* Observer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,8 +137,9 @@
 			children = (
 				F824B39A1C69FA2600B84A51 /* AppDelegate.swift */,
 				F824B39C1C69FA2600B84A51 /* ViewController.swift */,
+				F860E1711C77BBE800A1E3E1 /* Observer.swift */,
 				F824B3D21C6FD5E100B84A51 /* Utils.swift */,
-				F824B3D01C6D213D00B84A51 /* VCFirebase.swift */,
+				F860E16F1C77AD0500A1E3E1 /* Firebase.swift */,
 				F824B3CE1C6CC90400B84A51 /* User.swift */,
 				F824B3CC1C6B737B00B84A51 /* VCLocationManager.swift */,
 				F824B3CA1C6B681A00B84A51 /* VCMapView.swift */,
@@ -358,12 +361,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				F824B3CB1C6B681A00B84A51 /* VCMapView.swift in Sources */,
+				F860E1721C77BBE800A1E3E1 /* Observer.swift in Sources */,
 				F824B3CD1C6B737B00B84A51 /* VCLocationManager.swift in Sources */,
 				F824B39D1C69FA2600B84A51 /* ViewController.swift in Sources */,
 				F824B3C91C6B64A600B84A51 /* CustomAnnotation.swift in Sources */,
 				F824B3CF1C6CC90400B84A51 /* User.swift in Sources */,
 				F824B39B1C69FA2600B84A51 /* AppDelegate.swift in Sources */,
-				F824B3D11C6D213D00B84A51 /* VCFirebase.swift in Sources */,
+				F860E1701C77AD0500A1E3E1 /* Firebase.swift in Sources */,
 				F824B3D31C6FD5E100B84A51 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

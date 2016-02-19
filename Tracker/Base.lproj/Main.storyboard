@@ -35,11 +35,11 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="KRm-yl-AxT"/>
                                     <barButtonItem style="plain" id="v0X-hb-awE">
                                         <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="975-v0-h0S">
-                                            <rect key="frame" x="110" y="7" width="155" height="30"/>
+                                            <rect key="frame" x="140" y="7" width="95" height="30"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <segments>
-                                                <segment title="Följ"/>
-                                                <segment title="Kompass"/>
+                                                <segment title="" image="ic_near_me"/>
+                                                <segment title="" image="ic_navigation"/>
                                             </segments>
                                             <connections>
                                                 <action selector="setTrackingMode:" destination="BYZ-38-t0r" eventType="valueChanged" id="Piw-lF-G1t"/>
@@ -84,4 +84,8 @@
             <point key="canvasLocation" x="417.5" y="360.5"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="ic_navigation" width="24" height="24"/>
+        <image name="ic_near_me" width="24" height="24"/>
+    </resources>
 </document>

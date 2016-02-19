@@ -11,19 +11,21 @@ import Firebase
 import CoreLocation
 import MapKit
 
-class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
+class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate, FirebaseDBDelegate {
     
     @IBOutlet weak var updateLocationSwitch: UISwitch!
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var setTrackingModeControl: UISegmentedControl!
     @IBOutlet weak var userDetailButton: UIButton!
     
-
-    var firebase: Firebase! // storing users/coordinates
+    
+    var firebase: FirebaseDB = FirebaseDB()
 
     var locationUpdateDistance:Double = 300
     
     var locationLastKnown: CLLocation!
+    
+    var locationMeta = [String:String]()
 
     
     lazy var locationManager: CLLocationManager! = {
@@ -42,17 +44,33 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     var activityIndicatorVisible = UIApplication.sharedApplication().networkActivityIndicatorVisible
 
+    let notificationCenter = NSNotificationCenter.defaultCenter()
 
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
 
-        firebase = Firebase(url: "https://crackling-torch-7934.firebaseio.com/beamontracker/users")
+        // Add observer:
+        notificationCenter.addObserver(self,
+            selector: Selector("applicationDidBecomeActiveNotification"),
+            name: UIApplicationDidBecomeActiveNotification,
+            object: nil)
         
+        // Add observer:
+        notificationCenter.addObserver(self,
+            selector: Selector("applicationWillResignActiveNotification"),
+            name: UIApplicationWillResignActiveNotification,
+            object: nil)
+
+        // FirebaseDB
+        firebase.delegate = self
+        
+        // LocationManager
         locationManager.delegate = self
         locationManager.startUpdatingLocation() // startMonitoringSignificantLocationChanges()
         
+        // MapKit
         mapView.delegate = self
         mapView.mapType = .Standard
 
@@ -63,32 +81,46 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         super.didReceiveMemoryWarning()
 
         mapView.mapType = MKMapType(rawValue: 0)! // what does this do?
+        
     }
     
     override func viewWillAppear(animated: Bool) {
         
-        if userDefaults.boolForKey("Authenticated") { //NSLog("%@", "Access granted.")
-            
-            // just when switch is on for location updates
-            if userDefaults.boolForKey("UpdateLocation") {
-                self.updateLocationSwitch.on = true
-                self.attachFirebaseEvents()
-            }
-
-        } else { NSLog("%@", "Access denied.")
-            
-        }
+        //firebase.attachEvents()
 
     }
 
     override func viewWillDisappear(animated: Bool) {
         
-        self.detachFirebaseEvents()
+        //firebase.detachEvents()
         
     }
     
-    func requestUserAuthentication() {
+
+    // when firebase events successfully attached
+    func didAttachFirebaseEvents() {
         
+        self.updateLocationSwitch.on = true
+        
+    }
+    
+    func didSetLocation(location: CLLocation) {
+        
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "d/M yyyy, hh:mm"
+        let date = dateFormatter.stringFromDate(location.timestamp)
+        
+        self.locationMeta = ["title": "\(date)", "location": "<\(location.coordinate.latitude), \(location.coordinate.latitude)>"]
+    }
+    
+
+    
+
+    
+    
+    
+    func requestUserAuthentication() {
+
         let alert = UIAlertController(title: "Användarinformation", message: nil, preferredStyle: .Alert)
         
         let saveAction = UIAlertAction(title: "Spara",
@@ -119,9 +151,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
 
                     // force setting
                     let userLocation = self.mapView.userLocation.location
-                    self.storeLocation(userLocation!)
+                    self.firebase.storeLocation(userLocation!)
                     
-                    self.attachFirebaseEvents()
+                    self.firebase.attachEvents()
                 }
                 
         }
@@ -198,11 +230,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
                 self.locationManager.startUpdatingLocation()
                 self.mapView.userTrackingMode = .Follow // zoom to current location and follow
                 
-                self.attachFirebaseEvents()
+                firebase.attachEvents()
 
                 // force setting
                 let userLocation = self.mapView.userLocation.location
-                self.storeLocation(userLocation!)
+                firebase.storeLocation(userLocation!)
                 
             } else {
                 self.requestUserAuthentication()
@@ -215,16 +247,38 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             self.locationManager.stopUpdatingLocation()
             self.mapView.removeAnnotations(self.mapView.annotations)
 
-            self.detachFirebaseEvents()
+            firebase.detachEvents()
             
-            self.removeFromFirebase() // remove the user from firebase - security reasons
+            firebase.remove() // remove the user from firebase - security reasons
+            
+            self.locationMeta = [String:String]()
         
         }
     }
+    
+    /*
+    @IBAction func onStep(sender: UIStepper) {
+        let stepper = sender
 
+        self.locationUpdateDistance = stepper.value
+        
+        self.locationManager.stopUpdatingLocation()
+        self.locationManager.distanceFilter = stepper.value
+        self.locationManager.startUpdatingLocation()
+
+        print("\(stepper.value)")
+    }
+    */
+    
     @IBAction func onInfoButton(sender: UIButton) {
         
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+
+        let meta = self.locationMeta
+        if !meta.isEmpty {
+            alertController.title = meta["title"]
+            alertController.message = meta["location"]
+        }
         
         let userDetails = UIAlertAction(title: "Användarinformation", style: .Default, handler: { (action) -> Void in
             self.requestUserAuthentication()

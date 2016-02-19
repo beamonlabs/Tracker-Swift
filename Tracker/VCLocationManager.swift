@@ -48,12 +48,12 @@ extension ViewController {
                 if locationLastKnown.distanceFromLocation(location) > locationUpdateDistance {
                     locationLastKnown = location
                     // store location in FirebaseDB
-                    storeLocation(location)
+                    self.firebase.storeLocation(location)
                 }
             } else {
                 locationLastKnown = location
                 // store location in FirebaseDB
-                storeLocation(location)
+                self.firebase.storeLocation(location)
             }
             
         }
