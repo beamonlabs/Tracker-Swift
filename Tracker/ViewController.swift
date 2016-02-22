@@ -21,21 +21,45 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     var firebase: FirebaseDB = FirebaseDB()
 
-    var locationUpdateDistance:Double = 300
+    var locationUpdateDistance:Double = 250
     
     var locationLastKnown: CLLocation!
     
     var locationMeta = [String:String]()
+    
+    var users = [User]()
+    
+    var defersLocationUpdates = false
+    var defersLocationNextUpdate: NSTimeInterval = 60.0 // delay between location defers
+    var defersLocationDistance: CLLocationDistance = 250 // OR/AND when moved x meter
+    var desiredLocationAccuracy: Double = 31.0
 
     
+    // http://stackoverflow.com/questions/5490707/does-cllocationmanager-distancefilter-do-anything-to-conserve-power
+    // http://stackoverflow.com/questions/27281120/conserving-battery-with-ios-cllocationmanager
+    /*
+        One Apple sample code doc states specifically that setting a larger distanceFilter does not help in conserving power:
+        ... Also, the distanceFilter does not impact the hardware's activity - i.e., there is no savings of power by setting a larger distanceFilter because the hardware continues to acquire measurements. This simply affects whether those measurements are passed on to the location manager's delegate. Power can only be saved by turning off the location manager.
+
+        Certainly its related property distanceAccuracy has a definite impact on power management - as per the Apple docs:
+            Setting the desired accuracy for location events to one kilometer gives the location manager the flexibility to turn off GPS hardware and rely solely on the WiFi or cell radios. This can lead to significant power savings.
+
+        https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/LocationAwarenessPG/CoreLocation/CoreLocation.html
+        The significant-change location service provides accuracy that’s good enough for most apps and represents a power-saving alternative to the standard location service. The service uses Wi-Fi to determine the user’s location and report changes in that location, allowing the system to manage power usage much more aggressively than it could otherwise.
+        You can use Apple's energy diagnostics instruments to see at what desiredAccuracy level GPS chip is powered up. Our most recent investigation suggests that the GPS chip is powered when the desiredAccuracy or distanceFilter value is less than 100 meters. Energy usage values that instruments provides are very coarse for me to draw any direct co-relation between desiredAccuracy and battery usage. However, according to the popular wisdom, not turning on the GPS chip when you can is a good proxy for energy savings.
+    
+    */
     lazy var locationManager: CLLocationManager! = {
         let manager = CLLocationManager()
-        manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters //kCLLocationAccuracyBest
         manager.delegate = self
         manager.allowsBackgroundLocationUpdates = true // this is needed for ios9 to get the location even when it's backgrounded
+        manager.desiredAccuracy = kCLLocationAccuracyHundredMeters // kCLLocationAccuracyNearestTenMeters // kCLLocationAccuracyBest
         manager.distanceFilter = self.locationUpdateDistance
         manager.requestAlwaysAuthorization()
         manager.pausesLocationUpdatesAutomatically = false // not really documentated - but needed?
+        
+        //manager.pausesLocationUpdatesAutomatically = true
+        //manager.activityType = .Fitness // .AutomotiveNavigation .Fitness
 
         return manager
     }()
@@ -69,6 +93,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         // LocationManager
         locationManager.delegate = self
         locationManager.startUpdatingLocation() // startMonitoringSignificantLocationChanges()
+        //locationManager.startMonitoringSignificantLocationChanges()
         
         // MapKit
         mapView.delegate = self
@@ -111,9 +136,15 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         let date = dateFormatter.stringFromDate(location.timestamp)
         
         self.locationMeta = ["title": "\(date)", "location": "<\(location.coordinate.latitude), \(location.coordinate.latitude)>"]
+        
+        
+        // Otherwise present a local notification
+        let notification = UILocalNotification()
+        notification.alertBody = "<\(location.coordinate.latitude), \(location.coordinate.longitude)> \(location.timestamp)"
+        notification.soundName = "Default";
+        UIApplication.sharedApplication().presentLocalNotificationNow(notification)
+        
     }
-    
-
     
 
     
@@ -228,6 +259,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
                 self.userDefaults.setBool(true, forKey: "UpdateLocation")
                 
                 self.locationManager.startUpdatingLocation()
+                //self.locationManager.startMonitoringSignificantLocationChanges()
                 self.mapView.userTrackingMode = .Follow // zoom to current location and follow
                 
                 firebase.attachEvents()
@@ -245,6 +277,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             self.userDefaults.setBool(false, forKey: "UpdateLocation")
             
             self.locationManager.stopUpdatingLocation()
+            //self.locationManager.stopMonitoringSignificantLocationChanges()
             self.mapView.removeAnnotations(self.mapView.annotations)
 
             firebase.detachEvents()

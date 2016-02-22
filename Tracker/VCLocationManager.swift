@@ -22,6 +22,13 @@ extension ViewController {
         
     }
     
+    func locationManagerDidPauseLocationUpdates(manager: CLLocationManager) {
+        print("didPauseLocationUpdates")
+    }
+    func locationManagerDidResumeLocationUpdates(manager: CLLocationManager) {
+        print("didResumeLocationUpdates")
+    }
+    
     func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
         
         NSLog("LocationManager Error: %@", "\(error.localizedDescription)")
@@ -31,18 +38,45 @@ extension ViewController {
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         let location = locations[0]
-
-        //print("Location accuracy \(location.horizontalAccuracy), \(location.timestamp.timeIntervalSinceNow)")
+        
         
         let authorizationStatus = CLLocationManager.authorizationStatus()
         if(authorizationStatus == .AuthorizedAlways || authorizationStatus == .AuthorizedWhenInUse) {
 
+            
+            //print("[didUpdateLocations] \(location.horizontalAccuracy) <\(location.coordinate.latitude),\(location.coordinate.longitude)> \(location.timestamp)")
+            self.firebase.storeLocation(location)
+
+            /*
+            if (location.horizontalAccuracy <= self.desiredLocationAccuracy) {
+                // https://developer.apple.com/library/prerelease/ios/documentation/Performance/Conceptual/EnergyGuide-iOS/LocationBestPractices.html
+                // https://github.com/xslim/RouteCompare/blob/master/RouteCompare/Locator.swift
+                if (!self.defersLocationUpdates) {
+
+                    self.defersLocationUpdates = true;
+
+                    let distance: CLLocationDistance = self.defersLocationDistance // hike.goal - hike.distance
+                    let time: NSTimeInterval = self.defersLocationNextUpdate // nextUpdate.timeIntervalSinceNow()
+
+                    locationManager.allowDeferredLocationUpdatesUntilTraveled(distance, timeout:time)
+                    
+                    print("[DEFERRED] \(location.horizontalAccuracy) <\(location.coordinate.latitude),\(location.coordinate.longitude)> \(location.timestamp)")
+
+                    self.firebase.storeLocation(location)
+                    
+                }
+            }
+            */
+            
+            /*
             // http://www.raywenderlich.com/92428/background-modes-ios-swift-tutorial
             // can this exist inside authorizationStatus?
             if UIApplication.sharedApplication().applicationState == .Background {
                 self.onDidUpdateLocationsWhenInBackground(location)
             }
+            */
 
+            /*
             //calculation for location selection for pointing annoation
             if let _ = locationLastKnown as CLLocation? { //case if previous location exists
                 if locationLastKnown.distanceFromLocation(location) > locationUpdateDistance {
@@ -55,12 +89,23 @@ extension ViewController {
                 // store location in FirebaseDB
                 self.firebase.storeLocation(location)
             }
+            */
+            
             
         }
         
     }
+
+    func locationManager(manager: CLLocationManager, didFinishDeferredUpdatesWithError error: NSError?) {
+
+        // Stop deferring updates
+        self.defersLocationUpdates = false
+
+        // Adjust for the next goal
+        
+    }
     
-    // helper method to have background updates of location working
+    // help!!er method to have background updates of location working
     func onDidUpdateLocationsWhenInBackground(location: CLLocation) {
 
         var bgTask = UIBackgroundTaskIdentifier()
@@ -68,7 +113,7 @@ extension ViewController {
             UIApplication.sharedApplication().endBackgroundTask(bgTask)
         }
         
-        print("App in Background: \(location.coordinate.latitude) \(location.coordinate.longitude)")
+        //print("App in Background: \(location.coordinate.latitude) \(location.coordinate.longitude)")
         
         if (bgTask != UIBackgroundTaskInvalid)
         {

@@ -26,11 +26,12 @@ extension ViewController {
     }
     
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-
+        
         if annotation is CustomAnnotation {
+            
             let identifier = "pin"
             var pin = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier)
-            
+
             if pin == nil {
                 pin = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
                 pin?.image = UIImage(named: "map-pin")
@@ -61,7 +62,11 @@ extension ViewController {
     
     // delegate
     func willDropPinForUser(user: User) {
+        
         self.dropPinForUser(user)
+        
+        //self.users.append(user)
+        //print("\(self.users)")
     }
     
     func dropPinForUser(user: User) {

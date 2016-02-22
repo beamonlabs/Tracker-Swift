@@ -15,7 +15,7 @@ extension ViewController {
         // Handle application did become active notification event.
 
         self.firebase.attachEvents()
-
+        
     }
     
     // Callback:
@@ -25,7 +25,7 @@ extension ViewController {
         self.firebase.detachEvents()
         
         self.mapView.removeAnnotations(self.mapView.annotations)
-        
+
     }
 
 }

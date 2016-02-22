@@ -28,5 +28,4 @@ class CustomAnnotation : MKPointAnnotation {
     */
     
     var user: User?
-
 }
