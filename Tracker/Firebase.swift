@@ -28,13 +28,16 @@ class FirebaseDB {
 
     var activityIndicatorVisible = UIApplication.sharedApplication().networkActivityIndicatorVisible
 
+    /// <summary>
+    ///  Construtor
+    /// </summary>
     init() {
         self.ref = Firebase(url: "https://crackling-torch-7934.firebaseio.com/beamontracker/users")
     }
-
     
-    
-    
+    /// <summary>
+    ///  Observe events on FirebaseDB
+    /// </summary>
     func attachEvents() {
         
         if userDefaults.boolForKey("Authenticated") { //NSLog("%@", "Access granted.")
@@ -91,12 +94,19 @@ class FirebaseDB {
         
     }
     
+    /// <summary>
+    ///  Remove all observers for the FirebaseDB reference
+    /// </summary>
     func detachEvents() {
         
         ref.removeAllObservers()
         
     }
     
+    /// <summary>
+    ///  Save the current users location to FirebaseDB
+    /// </summary>
+    /// <param name="location">The location to store</param>
     func storeLocation(location: CLLocation) {
         
         if userDefaults.boolForKey("Authenticated") && userDefaults.boolForKey("UpdateLocation") {
@@ -140,6 +150,9 @@ class FirebaseDB {
         
     }
     
+    /// <summary>
+    ///  Remove the current user from FirebaseDB
+    /// </summary>
     func remove() {
         
         let deviceName = userDefaults.stringForKey("DeviceName") ?? UIDevice.currentDevice().name
@@ -156,7 +169,10 @@ class FirebaseDB {
         
     }
     
-    // Helper method
+    /// <summary>
+    ///  Helper method: Handle user
+    /// </summary>
+    /// <param name="o">The user - as FDataSnapshot item</param>
     func handleUser(o: FDataSnapshot) {
         
         let user = self.getUserForFDataSnapshot(o)
@@ -185,6 +201,10 @@ class FirebaseDB {
         
     }
     
+    /// <summary>
+    ///  Helper method: Returns a user instance from a FirebaseDB user item
+    /// </summary>
+    /// <param name="o">The user - as FDataSnapshot item</param>
     func getUserForFDataSnapshot(o: FDataSnapshot) -> User {
         
         let key: String = o.key

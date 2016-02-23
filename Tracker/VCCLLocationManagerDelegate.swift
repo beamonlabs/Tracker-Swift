@@ -1,16 +1,20 @@
 //
-//  VCLocationManager.swift
+//  VCCLLocationManagerDelegate.swift
 //  Tracker
 //
-//  Created by Stefan Dressler on 2016-02-10.
+//  Created by Stefan Dressler on 2016-02-23.
 //  Copyright © 2016 Beamon People AB. All rights reserved.
 //
 
 import Foundation
 import MapKit
 
-extension ViewController {
+// MARK: - CLLocationManagerDelegate
+extension ViewController: CLLocationManagerDelegate {
     
+    /// <summary>
+    ///
+    /// </summary>
     func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
 
         if(status == .AuthorizedAlways || status == .AuthorizedWhenInUse) {
@@ -22,19 +26,30 @@ extension ViewController {
         
     }
     
+    /// <summary>
+    ///
+    /// </summary>
     func locationManagerDidPauseLocationUpdates(manager: CLLocationManager) {
         print("didPauseLocationUpdates")
     }
+
+    /// <summary>
+    ///
+    /// </summary>
     func locationManagerDidResumeLocationUpdates(manager: CLLocationManager) {
         print("didResumeLocationUpdates")
     }
     
+    /// <summary>
+    ///
+    /// </summary>
     func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
-        
         NSLog("LocationManager Error: %@", "\(error.localizedDescription)")
-        
     }
-    
+
+    /// <summary>
+    ///
+    /// </summary>
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         let location = locations[0]
@@ -96,6 +111,9 @@ extension ViewController {
         
     }
 
+    /// <summary>
+    ///  [DEPRECATED] Helper method: to have background updates of location working
+    /// </summary>
     func locationManager(manager: CLLocationManager, didFinishDeferredUpdatesWithError error: NSError?) {
 
         // Stop deferring updates
@@ -105,7 +123,9 @@ extension ViewController {
         
     }
     
-    // help!!er method to have background updates of location working
+    /// <summary>
+    ///  [DEPRECATED] Helper method: to have background updates of location working
+    /// </summary>
     func onDidUpdateLocationsWhenInBackground(location: CLLocation) {
 
         var bgTask = UIBackgroundTaskIdentifier()

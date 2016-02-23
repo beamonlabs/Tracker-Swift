@@ -11,9 +11,9 @@ import Firebase
 import CoreLocation
 import MapKit
 
-class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate, FirebaseDBDelegate {
+class ViewController: UIViewController {
     
-    @IBOutlet weak var updateLocationSwitch: UISwitch!
+    //@IBOutlet weak var updateLocationSwitch: UISwitch!
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var setTrackingModeControl: UISegmentedControl!
     @IBOutlet weak var userDetailButton: UIButton!
@@ -34,10 +34,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     var defersLocationDistance: CLLocationDistance = 250 // OR/AND when moved x meter
     var desiredLocationAccuracy: Double = 31.0
 
+    /// StyleGuide: https://github.com/raywenderlich/swift-style-guide#comments
     
-    // http://stackoverflow.com/questions/5490707/does-cllocationmanager-distancefilter-do-anything-to-conserve-power
-    // http://stackoverflow.com/questions/27281120/conserving-battery-with-ios-cllocationmanager
-    /*
+    /// http://stackoverflow.com/questions/5490707/does-cllocationmanager-distancefilter-do-anything-to-conserve-power
+    /// http://stackoverflow.com/questions/27281120/conserving-battery-with-ios-cllocationmanager
+    /**
         One Apple sample code doc states specifically that setting a larger distanceFilter does not help in conserving power:
         ... Also, the distanceFilter does not impact the hardware's activity - i.e., there is no savings of power by setting a larger distanceFilter because the hardware continues to acquire measurements. This simply affects whether those measurements are passed on to the location manager's delegate. Power can only be saved by turning off the location manager.
 
@@ -102,102 +103,124 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     }
 
     override func didReceiveMemoryWarning() {
-        
         super.didReceiveMemoryWarning()
 
         mapView.mapType = MKMapType(rawValue: 0)! // what does this do?
-        
     }
     
     override func viewWillAppear(animated: Bool) {
-        
         //firebase.attachEvents()
-
     }
 
     override func viewWillDisappear(animated: Bool) {
-        
         //firebase.detachEvents()
-        
     }
-    
 
-    // when firebase events successfully attached
-    func didAttachFirebaseEvents() {
-        
-        self.updateLocationSwitch.on = true
-        
-    }
-    
-    func didSetLocation(location: CLLocation) {
-        
-        let dateFormatter = NSDateFormatter()
-        dateFormatter.dateFormat = "d/M yyyy, hh:mm"
-        let date = dateFormatter.stringFromDate(location.timestamp)
-        
-        self.locationMeta = ["title": "\(date)", "location": "<\(location.coordinate.latitude), \(location.coordinate.latitude)>"]
-        
-        
-        // Otherwise present a local notification
-        let notification = UILocalNotification()
-        notification.alertBody = "<\(location.coordinate.latitude), \(location.coordinate.longitude)> \(location.timestamp)"
-        notification.soundName = "Default";
-        UIApplication.sharedApplication().presentLocalNotificationNow(notification)
-        
-    }
-    
 
     
+    /// <summary>
+    ///  Helper method: what to do when tracking location enables
+    /// </summary>
+    func setStartUpdatingLocation() {
+
+        self.userDefaults.setBool(true, forKey: "UpdateLocation")
+        
+        self.locationManager.startUpdatingLocation()
+
+        self.mapView.userTrackingMode = .Follow // zoom to current location and follow
+        
+        self.firebase.attachEvents()
+        
+        // force store own location
+        if let userLocation = self.mapView.userLocation.location {
+            self.firebase.storeLocation(userLocation)
+        }
+
+    }
     
+    /// <summary>
+    ///  Helper method: what to do when tracking location disables
+    /// </summary>
+    func setStopUpdatingLocation() {
+
+        self.userDefaults.setBool(false, forKey: "UpdateLocation")
+        
+        self.locationManager.stopUpdatingLocation()
+
+        self.mapView.removeAnnotations(self.mapView.annotations)
+        
+        self.firebase.detachEvents()
+        
+        self.firebase.remove() // remove the user from firebase - security reasons
+        
+        self.locationMeta = [String:String]()
+
+    }
     
+    /// <summary>
+    ///  Helper method: store the
+    /// </summary>
+    /// <param name="email">The email of the current user to store in NSUserDefaults</param>
+    /// <param name="fullName">The full name of the current user to store in NSUserDefaults</param>
+    func setUserDefaults(email: String, fullName: String) {
+        
+        // prepare Firebase user key by processing email address
+        let dictKeyFromEmail : Dictionary<String, String> = [
+            "@beamonpeople.se": "",
+            ".": " "
+        ]
+        let fbUserKey = Utils.replaceByDict(email, dict: dictKeyFromEmail)
+        
+        self.userDefaults.setValue(fbUserKey, forKey: "FBUserKey")
+        self.userDefaults.setValue(fullName, forKey: "FullName")
+        self.userDefaults.setValue(email, forKey: "Email")
+        
+    }
+    
+    /// <summary>
+    ///  Requests full name and email address of the current user
+    /// </summary>
     func requestUserAuthentication() {
 
         let alert = UIAlertController(title: "Användarinformation", message: nil, preferredStyle: .Alert)
         
         let saveAction = UIAlertAction(title: "Spara",
             style: .Default) { (action: UIAlertAction!) -> Void in
-                
-                if let fullName = ((alert.textFields?.first)! as UITextField).text {
-                    self.userDefaults.setValue(fullName, forKey: "FullName")
-                }
-                
-                if let email = ((alert.textFields?.last)! as UITextField).text {
-                    // prepare Firebase user key by processing email address
-                    let dictKeyFromEmail : Dictionary<String, String> = [
-                        "@beamonpeople.se": "",
-                        ".": " "
-                    ]
-                    let fbUserKey = Utils.replaceByDict(email, dict: dictKeyFromEmail)
-                    
-                    self.userDefaults.setValue(email, forKey: "Email")
-                    self.userDefaults.setValue(fbUserKey, forKey: "FBUserKey")
-                }
+
+            guard let fullName = ((alert.textFields?.first)! as UITextField).text else {
+                NSLog("Corrupt Data: %@", "fullName")
+                return
+            }
+            
+            guard let email = ((alert.textFields?.last)! as UITextField).text else {
+                NSLog("Corrupt Data: %@", "email")
+                return
+            }
+
+            // store data in NSUserDefaults
+            self.setUserDefaults(email, fullName: fullName)
+            
+            // if not already authenticated (first time register)
+            if !self.userDefaults.boolForKey("Authenticated") {
                 
                 self.userDefaults.setBool(true, forKey: "Authenticated")
                 
-                self.userDetailButton.hidden = false
+                self.setStartUpdatingLocation()
                 
-                if self.updateLocationSwitch.on {
-                    self.userDefaults.setBool(true, forKey: "UpdateLocation")
-
-                    // force setting
-                    let userLocation = self.mapView.userLocation.location
-                    self.firebase.storeLocation(userLocation!)
-                    
-                    self.firebase.attachEvents()
-                }
+            }
                 
         }
         saveAction.enabled = false
         
         let cancelAction = UIAlertAction(title: "Avbryt",
             style: .Default) { (action: UIAlertAction!) -> Void in
-                
+                /*
                 // if already authenticated, don't reset switch state
                 if !self.userDefaults.boolForKey("Authenticated") {
                     // reset switch to "off"
                     self.updateLocationSwitch.on = false
                 }
+                */
         }
         
         alert.addTextFieldWithConfigurationHandler {
@@ -239,7 +262,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
 
     
     
-    
+    /// <summary>
+    ///  Set the map tracking mode related to the choosen button
+    /// </summary>
     @IBAction func setTrackingMode(sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
@@ -250,8 +275,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             break
         }
     }
-
-    // http://www.ioscreator.com/tutorials/uiswitch-tutorial-in-ios8-with-swift
+    
+    /// <summary>
+    ///  [DEPRECATED] What to do when switch for en/disable track location changed state
+    /// </summary>
+    /// http://www.ioscreator.com/tutorials/uiswitch-tutorial-in-ios8-with-swift
+    /*
     @IBAction func onUpdateLocationSwitchChange(sender: UISwitch) {
         if(updateLocationSwitch.on) {
             
@@ -288,21 +317,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
         }
     }
-    
-    /*
-    @IBAction func onStep(sender: UIStepper) {
-        let stepper = sender
-
-        self.locationUpdateDistance = stepper.value
-        
-        self.locationManager.stopUpdatingLocation()
-        self.locationManager.distanceFilter = stepper.value
-        self.locationManager.startUpdatingLocation()
-
-        print("\(stepper.value)")
-    }
     */
     
+    /// <summary>
+    ///  Open "settings" when clicked on info button
+    /// </summary>
     @IBAction func onInfoButton(sender: UIButton) {
         
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
@@ -324,17 +343,34 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         let mapTypeSatellite = UIAlertAction(title: "Satellit", style: .Default, handler: { (action) -> Void in
             self.mapView.mapType = .Satellite
         })
-        
+
+        let enableLocationUpdate = UIAlertAction(title: "Spåra min position", style: .Default, handler: { (action) -> Void in
+            if self.userDefaults.boolForKey("Authenticated") { //NSLog("%@", "Access granted.")
+                self.setStartUpdatingLocation()
+            } else {
+                self.requestUserAuthentication()
+            }
+        })
+        let disableLocationUpdate = UIAlertAction(title: "Sluta spåra min position", style: .Destructive, handler: { (action) -> Void in
+            self.setStopUpdatingLocation()
+        })
+
         let cancel = UIAlertAction(title: "Avbryt", style: .Cancel, handler: { (action) -> Void in
             // TODO
         })
         
-        
-        if userDefaults.boolForKey("Authenticated") {
+
+        if self.userDefaults.boolForKey("UpdateLocation") {
+            alertController.addAction(disableLocationUpdate)
+        } else {
+            alertController.addAction(enableLocationUpdate)
+        }
+
+        if self.userDefaults.boolForKey("Authenticated") {
             alertController.addAction(userDetails)
         }
-    
-        switch mapView.mapType {
+
+        switch self.mapView.mapType {
         case .Standard:
             alertController.addAction(mapTypeSatellite)
         case .Satellite:
@@ -348,9 +384,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         presentViewController(alertController, animated: true, completion: nil)
 
     }
-
     
-    //  email validation code method
+    /// <summary>
+    ///  Helper method to check for valid email
+    /// </summary>
     func isValidEmail(testStr:String) -> Bool {
         //let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
         let emailRegEx = "[A-Z0-9a-z._%+-]+@beamonpeople\\.se"
