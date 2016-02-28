@@ -48,6 +48,18 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Uppdaterades alldeles nyss" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PlC-zW-hwB">
+                                <rect key="frame" x="134" y="626" width="181" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Beams" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qdu-Rz-IRv">
+                                <rect key="frame" x="134" y="643" width="181" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -63,6 +75,8 @@
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
                     <connections>
+                        <outlet property="annotationCountLabel" destination="qdu-Rz-IRv" id="GEJ-mU-i4Z"/>
+                        <outlet property="locationUpdateLabel" destination="PlC-zW-hwB" id="ScL-4s-kvb"/>
                         <outlet property="mapView" destination="JWJ-tZ-qyj" id="w7i-eX-2lT"/>
                         <outlet property="setTrackingModeControl" destination="975-v0-h0S" id="cjp-3A-oXx"/>
                         <outlet property="userDetailButton" destination="uLG-vU-aCp" id="PHd-1r-1Zv"/>

@@ -32,6 +32,19 @@ extension ViewController: FirebaseDBDelegate {
         
         self.locationMeta = ["title": "\(date)", "location": "<\(location.coordinate.latitude), \(location.coordinate.latitude)>"]
         
+        let timeFormatter = NSDateFormatter()
+        timeFormatter.dateFormat = "hh:mm"
+        let formattedTime = NSString(format: "Position uppdaterades kl %@", timeFormatter.stringFromDate(location.timestamp)) as String
+        self.locationUpdateLabel.text = formattedTime
+        
+    }
+    
+    /// <summary>
+    ///  When the current user is removed from firebase
+    /// </summary>
+    func didRemoveUser() {
+        self.locationUpdateLabel.text = ""
+        self.annotationCountLabel.text = ""
     }
     
     /// <summary>
@@ -42,8 +55,8 @@ extension ViewController: FirebaseDBDelegate {
         
         self.dropPinForUser(user)
         
-        //self.users.append(user)
-        //print("\(self.users)")
+        self.addToUsers(user)
+
     }
     
     /// <summary>
@@ -84,6 +97,8 @@ extension ViewController: FirebaseDBDelegate {
                 
                 self.mapView.removeAnnotation(mapViewAnnotation)
                 
+                self.removeFromUsers(user)
+
                 print("[REMOVED] \(user.fullName)")
                 
             }
@@ -127,4 +142,46 @@ extension ViewController: FirebaseDBDelegate {
         
     }
     
+    /// <summary>
+    ///  Helper method: add a user to the global users array
+    /// </summary>
+    /// <param name="user">The user</param>
+    func addToUsers(user: User) {
+        
+        let isContained = self.users.contains({ element in
+            return (element.email == user.email)
+        })
+        
+        if(!isContained) {
+            self.users.append(user)
+        }
+        
+        self.annotationCountLabel.text = String(self.users.count) + self.annotationCountLabelSuffix
+        
+    }
+
+    /// <summary>
+    ///  Helper method: remove a user from the global users array
+    /// </summary>
+    /// <param name="user">The user</param>
+    func removeFromUsers(user: User) {
+
+        let isContained = self.users.contains({ element in
+            return (element.email == user.email)
+        })
+        
+        if(isContained) {
+            
+            for (index, value) in self.users.enumerate() {
+                if value.email == user.email {
+                    self.users.removeAtIndex(index)
+                }
+            }
+            
+            self.annotationCountLabel.text = String(self.users.count) + self.annotationCountLabelSuffix
+            
+        }
+
+    }
+
 }

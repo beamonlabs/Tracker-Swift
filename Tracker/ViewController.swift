@@ -18,16 +18,18 @@ class ViewController: UIViewController {
     @IBOutlet weak var setTrackingModeControl: UISegmentedControl!
     @IBOutlet weak var userDetailButton: UIButton!
     
+    @IBOutlet weak var locationUpdateLabel: UILabel!
+    @IBOutlet weak var annotationCountLabel: UILabel!
     
     var firebase: FirebaseDB = FirebaseDB()
 
     var locationUpdateDistance:Double = 250
     
-    var locationLastKnown: CLLocation!
-    
     var locationMeta = [String:String]()
     
     var users = [User]()
+
+    let annotationCountLabelSuffix = " Beams"
     
     var defersLocationUpdates = false
     var defersLocationNextUpdate: NSTimeInterval = 60.0 // delay between location defers
@@ -75,6 +77,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
+        // clean the labels as default
+        self.locationUpdateLabel.text = ""
+        self.annotationCountLabel.text = ""
 
         // Add observer:
         notificationCenter.addObserver(self,

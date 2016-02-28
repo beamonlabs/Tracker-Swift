@@ -13,6 +13,7 @@ import MapKit
 protocol FirebaseDBDelegate {
     func didAttachFirebaseEvents()
     func didSetLocation(location: CLLocation)
+    func didRemoveUser()
     func willDropPinForUser(user: User)
     func willUpdatePinForUser(user: User)
     func willRemovePinForUser(user: User)
@@ -161,9 +162,9 @@ class FirebaseDB {
         ref.childByAppendingPath("\(fbUserKey)").removeValueWithCompletionBlock({
             (error:NSError?, ref:Firebase!) in
             if(error != nil) {
-                print("Data removed")
+                //print("Error removing user")
             } else {
-                //print("Data saved successfully.")
+                self.delegate.didRemoveUser()
             }
         })
         
@@ -214,7 +215,9 @@ class FirebaseDB {
         var fullName: String = key
         
         var email: String = ""
-        
+
+        var timestamp: String = ""
+
         let latitude = o.value["latitude"] as? Double
         
         let longitude = o.value["longitude"] as? Double
@@ -231,9 +234,13 @@ class FirebaseDB {
         if(latitude != nil && longitude != nil) {
             location = CLLocation(latitude: latitude!, longitude: longitude!)
         }
+
+        if let _timestamp = o.value["timestamp"] as? String {
+            timestamp = _timestamp
+        }
+
         
-        
-        return User(key: key, fullName: fullName, email: email, location: location)
+        return User(key: key, fullName: fullName, email: email, location: location, timestamp: timestamp)
     }
     
 }

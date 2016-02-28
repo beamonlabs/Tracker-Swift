@@ -19,11 +19,14 @@ struct User {
     
     var location: CLLocation = CLLocation(latitude: 0, longitude: 0)
     
-    init(key: String, fullName: String, email: String, location: CLLocation) {
+    var timestamp: String = ""
+    
+    init(key: String, fullName: String, email: String, location: CLLocation, timestamp: String) {
         self.key = key
         self.fullName = fullName
         self.email = email
         self.location = location
+        self.timestamp = timestamp
     }
 
 }

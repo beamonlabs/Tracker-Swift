@@ -42,7 +42,7 @@ extension ViewController: MKMapViewDelegate {
                 pin = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
                 pin?.image = UIImage(named: "map-pin")
                 pin?.canShowCallout = true
-                //pin?.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
+                pin?.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
             } else {
                 pin?.annotation = annotation
             }
@@ -53,24 +53,30 @@ extension ViewController: MKMapViewDelegate {
         return nil
     }
     
-    /*
+    /// <summary>
+    ///
+    /// </summary>
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
     
-    let annotation = view.annotation as! CustomAnnotation
-    if let user = annotation.user {
-    print("callout pressed for \(user.fullName), \(user.email)")
+        let annotation = view.annotation as! CustomAnnotation
+        if let user = annotation.user {
+            let formattedTime = NSString(format: "Position uppdaterades %@", user.timestamp) as String
+            
+            let alertController = UIAlertController(title: user.fullName, message: formattedTime, preferredStyle: UIAlertControllerStyle.Alert)
+            alertController.addAction(UIAlertAction(title: "Stäng", style: UIAlertActionStyle.Default,handler: nil))
+            self.presentViewController(alertController, animated: true, completion: nil)
+        }
+
     }
-    
-    }
-    */
     
     /*
     // If user selects annotation view for `CustomAnnotation`, then show callout for it. Automatically select
     // that new callout annotation, too.
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
     
-    print("didSelectAnnotationView")
+        print("didSelectAnnotationView")
     
     }
     */
+    
 }
