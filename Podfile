@@ -5,6 +5,7 @@ use_frameworks!
 
 target 'Tracker' do
     pod 'Firebase', '>= 2.5.0'
+	pod 'Google/SignIn'
 end
 
 target 'TrackerTests' do

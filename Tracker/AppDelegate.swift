@@ -11,7 +11,7 @@ import CoreLocation
 
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate, CLLocationManagerDelegate {
 
     var window: UIWindow?
     
@@ -35,6 +35,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         
+        /// Google SignIn needs ENABLE_BITCODE = NO to run on iPhone
+        /// http://stackoverflow.com/questions/31205133/how-to-enable-bitcode-in-xcode-7
+
+        // Initialize Google sign-in
+        var configureError: NSError?
+        GGLContext.sharedInstance().configureWithError(&configureError)
+        assert(configureError == nil, "Error configuring Google services: \(configureError)")
+        GIDSignIn.sharedInstance().delegate = self
+        
+        
+        
         // https://gooddevbaddev.wordpress.com/2013/10/22/ios-7-running-location-based-apps-in-the-background/
         // check info.plist entries - are these items needed?
         
@@ -54,9 +65,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
             "Authenticated": false,
             "UpdateLocation": false
         ]
-        
+
         userDefaults.registerDefaults(settings)
-        
         
         if userDefaults.boolForKey("UpdateLocation") {
             locationManager.delegate = self
@@ -64,18 +74,138 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
             
             let loc = locationManager.location
 
-            //application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: [.Sound, .Alert, .Badge], categories: nil))
-            //UIApplication.sharedApplication().cancelAllLocalNotifications()
-            
-            if  launchOptions?[UIApplicationLaunchOptionsLocationKey] != nil {
-                print("[UIApplicationLaunchOptionsLocationKey] It's a location event")
-                
+            if launchOptions?[UIApplicationLaunchOptionsLocationKey] != nil {
                 vc.firebase.storeLocation(loc!)
             }
         }
         
         return true
     }
+    
+    
+    
+    
+    
+    /// <summary>
+    ///  GIDSignIn Helper method to open URL for auth redirect
+    /// </summary>
+    /// <param name="application"></param>
+    /// <param name="openURL"></param>
+    /// <param name="sourceApplication"></param>
+    /// <param name="annotation"></param>
+    func application(application: UIApplication,
+        openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
+            return GIDSignIn.sharedInstance().handleURL(url,
+                sourceApplication: sourceApplication,
+                annotation: annotation)
+    }
+    
+    /// <summary>
+    ///  GIDSignIn Helper method to open URL for auth redirect
+    /// </summary>
+    /// <param name="application"></param>
+    /// <param name="openURL"></param>
+    /// <param name="options"></param>
+    func application(app: UIApplication,
+        openURL url: NSURL, options: [String : AnyObject]) -> Bool {
+        return GIDSignIn.sharedInstance().handleURL(url,
+            sourceApplication: options[UIApplicationOpenURLOptionsSourceApplicationKey] as! String?,
+            annotation: options[UIApplicationOpenURLOptionsAnnotationKey])
+    }
+    
+    /// <summary>
+    ///  GIDSignIn Signin handler
+    ///  Perform any operations on signed in user here.
+    /// </summary>
+    func signIn(signIn: GIDSignIn!, didSignInForUser user: GIDGoogleUser!,
+        withError error: NSError!) {
+            if (error == nil) {
+                //let userId = user.userID                  // For client-side use only!
+                //let idToken = user.authentication.idToken // Safe to send to the server
+                let fullName = user.profile.name
+                let email = user.profile.email
+                
+                var avatar:String = ""
+                
+                if user.profile.hasImage {
+                    let imageUrl = signIn.currentUser.profile.imageURLWithDimension(128)
+                    avatar = imageUrl.absoluteString
+                }
+                
+                // store data in NSUserDefaults
+                self.setUserDefaults(email, fullName: fullName, avatar: avatar)
+                
+                //print("[GOOGLE] \(email) \(fullName)")
+
+                NSNotificationCenter.defaultCenter().postNotificationName(
+                    "ToggleAuthUINotification",
+                    object: nil,
+                    userInfo: ["statusText": "Signed in user:\n\(fullName)"])
+            } else {
+                //print("[GOOGLE] Not authenticated.")
+
+                print("\(error.localizedDescription)")
+
+                NSNotificationCenter.defaultCenter().postNotificationName(
+                    "ToggleAuthUINotification",
+                    object: nil,
+                    userInfo: nil)
+            }
+    }
+
+    /// <summary>
+    ///  GIDSignIn Disconnect handler
+    ///  Perform any operations when the user disconnects from app here.
+    /// </summary>
+    func signIn(signIn: GIDSignIn!, didDisconnectWithUser user:GIDGoogleUser!,
+        withError error: NSError!) {
+            // remove from Firebase - needs to be BEFORE unset defaults
+            FirebaseDB.sharedInstance.remove()
+
+            self.unsetUserDefaults()
+            
+            NSNotificationCenter.defaultCenter().postNotificationName(
+                "ToggleAuthUINotification",
+                object: nil,
+                userInfo: ["statusText": "User has disconnected."])
+    }
+
+    
+    /// <summary>
+    ///  Helper method: store the user settings
+    /// </summary>
+    /// <param name="email">The email of the current user to store in NSUserDefaults</param>
+    /// <param name="fullName">The full name of the current user to store in NSUserDefaults</param>
+    /// <param name="avatar">The URL to the avatar image</param>
+    func setUserDefaults(email: String, fullName: String, avatar: String) {
+        
+        // prepare Firebase user key by processing email address
+        let dictKeyFromEmail : Dictionary<String, String> = [
+            "@beamonpeople.se": "",
+            ".": " "
+        ]
+        let fbUserKey = Utils.replaceByDict(email, dict: dictKeyFromEmail)
+        
+        self.userDefaults.setValue(fbUserKey, forKey: "FBUserKey")
+        self.userDefaults.setValue(fullName, forKey: "FullName")
+        self.userDefaults.setValue(email, forKey: "Email")
+        self.userDefaults.setValue(avatar, forKey: "Avatar")
+        
+    }
+
+    /// <summary>
+    ///  Helper method: remove the user settings
+    /// </summary>
+    func unsetUserDefaults() {
+        
+        self.userDefaults.setValue("", forKey: "FullName")
+        self.userDefaults.setValue("", forKey: "Email")
+        self.userDefaults.setValue("", forKey: "Avatar")
+        
+    }
+    
+    
+    
     
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

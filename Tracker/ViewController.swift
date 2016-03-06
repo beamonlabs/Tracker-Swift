@@ -11,23 +11,31 @@ import Firebase
 import CoreLocation
 import MapKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, GIDSignInUIDelegate {
     
-    //@IBOutlet weak var updateLocationSwitch: UISwitch!
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var setTrackingModeControl: UISegmentedControl!
     @IBOutlet weak var userDetailButton: UIButton!
     
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    @IBOutlet weak var tableView: UITableView!
+    
     @IBOutlet weak var locationUpdateLabel: UILabel!
     @IBOutlet weak var annotationCountLabel: UILabel!
     
-    var firebase: FirebaseDB = FirebaseDB()
+    //var firebase: FirebaseDB = FirebaseDB()
+    var firebase = FirebaseDB.sharedInstance
 
     var locationUpdateDistance:Double = 250
     
     var locationMeta = [String:String]()
     
     var users = [User]()
+    
+    //var data = ["San Francisco","New York","San Jose","Chicago","Los Angeles","Austin","Seattle"]
+    var data = [String]()
+    var filtered:[String] = []
 
     let annotationCountLabelSuffix = " Beams"
     
@@ -60,10 +68,7 @@ class ViewController: UIViewController {
         manager.distanceFilter = self.locationUpdateDistance
         manager.requestAlwaysAuthorization()
         manager.pausesLocationUpdatesAutomatically = false // not really documentated - but needed?
-        
-        //manager.pausesLocationUpdatesAutomatically = true
         //manager.activityType = .Fitness // .AutomotiveNavigation .Fitness
-
         return manager
     }()
 
@@ -73,15 +78,44 @@ class ViewController: UIViewController {
 
     let notificationCenter = NSNotificationCenter.defaultCenter()
 
+    var searchActive : Bool = false
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
+        GIDSignIn.sharedInstance().uiDelegate = self
+
+        if (GIDSignIn.sharedInstance().hasAuthInKeychain()) {
+            print("[GOOGLE] Has Auth In Keychain")
+            // Uncomment to automatically sign in the user.
+            GIDSignIn.sharedInstance().signInSilently()
+        } else {
+            print("[GOOGLE] No Auth In Keychain -> Request SignIn")
+            GIDSignIn.sharedInstance().signIn()
+        }
+
+        // FirebaseDB
+        firebase.delegate = self
+        
+        // LocationManager
+        locationManager.delegate = self
+        locationManager.startUpdatingLocation()
+        
+        // MapKit
+        mapView.delegate = self
+        mapView.mapType = .Standard
+        
+        
+        // table view and search bar
+        tableView.delegate = self
+        tableView.dataSource = self
+        searchBar.delegate = self
+        
         // clean the labels as default
         self.locationUpdateLabel.text = ""
         self.annotationCountLabel.text = ""
-
+        
         // Add observer:
         notificationCenter.addObserver(self,
             selector: Selector("applicationDidBecomeActiveNotification"),
@@ -93,37 +127,26 @@ class ViewController: UIViewController {
             selector: Selector("applicationWillResignActiveNotification"),
             name: UIApplicationWillResignActiveNotification,
             object: nil)
-
-        // FirebaseDB
-        firebase.delegate = self
-        
-        // LocationManager
-        locationManager.delegate = self
-        locationManager.startUpdatingLocation() // startMonitoringSignificantLocationChanges()
-        //locationManager.startMonitoringSignificantLocationChanges()
-        
-        // MapKit
-        mapView.delegate = self
-        mapView.mapType = .Standard
-
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-
-        mapView.mapType = MKMapType(rawValue: 0)! // what does this do?
+        //mapView.mapType = MKMapType(rawValue: 0)! // what does this do?
     }
     
     override func viewWillAppear(animated: Bool) {
-        //firebase.attachEvents()
+        if userDefaults.boolForKey("UpdateLocation") {
+            self.setStartUpdatingLocation()
+        } else {
+            self.setStopUpdatingLocation()
+        }
+        //self.firebase.attachEvents()
     }
 
     override func viewWillDisappear(animated: Bool) {
-        //firebase.detachEvents()
+        self.firebase.detachEvents()
     }
 
-
-    
     /// <summary>
     ///  Helper method: what to do when tracking location enables
     /// </summary>
@@ -164,111 +187,6 @@ class ViewController: UIViewController {
     }
     
     /// <summary>
-    ///  Helper method: store the
-    /// </summary>
-    /// <param name="email">The email of the current user to store in NSUserDefaults</param>
-    /// <param name="fullName">The full name of the current user to store in NSUserDefaults</param>
-    func setUserDefaults(email: String, fullName: String) {
-        
-        // prepare Firebase user key by processing email address
-        let dictKeyFromEmail : Dictionary<String, String> = [
-            "@beamonpeople.se": "",
-            ".": " "
-        ]
-        let fbUserKey = Utils.replaceByDict(email, dict: dictKeyFromEmail)
-        
-        self.userDefaults.setValue(fbUserKey, forKey: "FBUserKey")
-        self.userDefaults.setValue(fullName, forKey: "FullName")
-        self.userDefaults.setValue(email, forKey: "Email")
-        
-    }
-    
-    /// <summary>
-    ///  Requests full name and email address of the current user
-    /// </summary>
-    func requestUserAuthentication() {
-
-        let alert = UIAlertController(title: "Användarinformation", message: nil, preferredStyle: .Alert)
-        
-        let saveAction = UIAlertAction(title: "Spara",
-            style: .Default) { (action: UIAlertAction!) -> Void in
-
-            guard let fullName = ((alert.textFields?.first)! as UITextField).text else {
-                NSLog("Corrupt Data: %@", "fullName")
-                return
-            }
-            
-            guard let email = ((alert.textFields?.last)! as UITextField).text else {
-                NSLog("Corrupt Data: %@", "email")
-                return
-            }
-
-            // store data in NSUserDefaults
-            self.setUserDefaults(email, fullName: fullName)
-            
-            // if not already authenticated (first time register)
-            if !self.userDefaults.boolForKey("Authenticated") {
-                
-                self.userDefaults.setBool(true, forKey: "Authenticated")
-                
-                self.setStartUpdatingLocation()
-                
-            }
-                
-        }
-        saveAction.enabled = false
-        
-        let cancelAction = UIAlertAction(title: "Avbryt",
-            style: .Default) { (action: UIAlertAction!) -> Void in
-                /*
-                // if already authenticated, don't reset switch state
-                if !self.userDefaults.boolForKey("Authenticated") {
-                    // reset switch to "off"
-                    self.updateLocationSwitch.on = false
-                }
-                */
-        }
-        
-        alert.addTextFieldWithConfigurationHandler {
-            (tfFullName:UITextField) in
-            tfFullName.text = self.userDefaults.stringForKey("FullName") ?? ""
-            tfFullName.placeholder = "Förnamn Efternamn"
-        }
-        
-        alert.addTextFieldWithConfigurationHandler {
-            (tfEmail:UITextField) in
-            tfEmail.text = self.userDefaults.stringForKey("Email") ?? ""
-            tfEmail.placeholder = "fornamn.efternamn@beamonpeople.se"
-            tfEmail.keyboardType = .EmailAddress
-        }
-        
-        // adding the notification observer here
-        NSNotificationCenter.defaultCenter().addObserverForName(UITextFieldTextDidChangeNotification, object:alert.textFields?[0], queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
-            let tfFullName = (alert.textFields?[0])! as UITextField
-            let tfEmail = alert.textFields![1] as UITextField
-            saveAction.enabled = self.isValidEmail(tfEmail.text!) &&  !tfFullName.text!.isEmpty
-        }
-        NSNotificationCenter.defaultCenter().addObserverForName(UITextFieldTextDidChangeNotification, object:alert.textFields?[1], queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
-            let tfFullName = alert.textFields![0] as UITextField
-            let tfEmail = alert.textFields![1] as UITextField
-            saveAction.enabled = self.isValidEmail(tfEmail.text!) &&  !tfFullName.text!.isEmpty
-        }
-        
-        
-        alert.addAction(cancelAction)
-        alert.addAction(saveAction)
-        
-        // .Default action should be bold by "design" - but needs explicit def in iOS 9
-        alert.preferredAction = alert.actions[1]
-        
-        self.presentViewController(alert, animated: true, completion: nil)
-        
-    }
-    
-
-    
-    
-    /// <summary>
     ///  Set the map tracking mode related to the choosen button
     /// </summary>
     @IBAction func setTrackingMode(sender: UISegmentedControl) {
@@ -283,49 +201,6 @@ class ViewController: UIViewController {
     }
     
     /// <summary>
-    ///  [DEPRECATED] What to do when switch for en/disable track location changed state
-    /// </summary>
-    /// http://www.ioscreator.com/tutorials/uiswitch-tutorial-in-ios8-with-swift
-    /*
-    @IBAction func onUpdateLocationSwitchChange(sender: UISwitch) {
-        if(updateLocationSwitch.on) {
-            
-            if userDefaults.boolForKey("Authenticated") { //NSLog("%@", "Access granted.")
-                self.userDefaults.setBool(true, forKey: "UpdateLocation")
-                
-                self.locationManager.startUpdatingLocation()
-                //self.locationManager.startMonitoringSignificantLocationChanges()
-                self.mapView.userTrackingMode = .Follow // zoom to current location and follow
-                
-                firebase.attachEvents()
-
-                // force setting
-                let userLocation = self.mapView.userLocation.location
-                firebase.storeLocation(userLocation!)
-                
-            } else {
-                self.requestUserAuthentication()
-            }
-
-        } else {
-
-            self.userDefaults.setBool(false, forKey: "UpdateLocation")
-            
-            self.locationManager.stopUpdatingLocation()
-            //self.locationManager.stopMonitoringSignificantLocationChanges()
-            self.mapView.removeAnnotations(self.mapView.annotations)
-
-            firebase.detachEvents()
-            
-            firebase.remove() // remove the user from firebase - security reasons
-            
-            self.locationMeta = [String:String]()
-        
-        }
-    }
-    */
-    
-    /// <summary>
     ///  Open "settings" when clicked on info button
     /// </summary>
     @IBAction func onInfoButton(sender: UIButton) {
@@ -338,10 +213,6 @@ class ViewController: UIViewController {
             alertController.message = meta["location"]
         }
         
-        let userDetails = UIAlertAction(title: "Användarinformation", style: .Default, handler: { (action) -> Void in
-            self.requestUserAuthentication()
-        })
-        
         let mapTypeDefault = UIAlertAction(title: "Karta", style: .Default, handler: { (action) -> Void in
             self.mapView.mapType = .Standard
         })
@@ -350,31 +221,9 @@ class ViewController: UIViewController {
             self.mapView.mapType = .Satellite
         })
 
-        let enableLocationUpdate = UIAlertAction(title: "Spåra min position", style: .Default, handler: { (action) -> Void in
-            if self.userDefaults.boolForKey("Authenticated") { //NSLog("%@", "Access granted.")
-                self.setStartUpdatingLocation()
-            } else {
-                self.requestUserAuthentication()
-            }
-        })
-        let disableLocationUpdate = UIAlertAction(title: "Sluta spåra min position", style: .Destructive, handler: { (action) -> Void in
-            self.setStopUpdatingLocation()
-        })
-
         let cancel = UIAlertAction(title: "Avbryt", style: .Cancel, handler: { (action) -> Void in
             // TODO
         })
-        
-
-        if self.userDefaults.boolForKey("UpdateLocation") {
-            alertController.addAction(disableLocationUpdate)
-        } else {
-            alertController.addAction(enableLocationUpdate)
-        }
-
-        if self.userDefaults.boolForKey("Authenticated") {
-            alertController.addAction(userDetails)
-        }
 
         switch self.mapView.mapType {
         case .Standard:
@@ -390,17 +239,91 @@ class ViewController: UIViewController {
         presentViewController(alertController, animated: true, completion: nil)
 
     }
+
+}
+
+
+
+// special for TableView and Search
+extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
-    /// <summary>
-    ///  Helper method to check for valid email
-    /// </summary>
-    func isValidEmail(testStr:String) -> Bool {
-        //let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
-        let emailRegEx = "[A-Z0-9a-z._%+-]+@beamonpeople\\.se"
-        if let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx) as NSPredicate? {
-            return emailTest.evaluateWithObject(testStr)
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if(searchActive) {
+            return filtered.count
         }
-        return false
+        return data.count;
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as UITableViewCell;
+        if(searchActive){
+            cell.textLabel?.text = filtered[indexPath.row]
+        } else {
+            cell.textLabel?.text = data[indexPath.row];
+        }
+        return cell;
+    }
+
+    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+        print("\(tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text)")
     }
 
 }
+
+
+// special for TableView and Search
+extension ViewController: UISearchBarDelegate {
+
+    /// http://shrikar.com/swift-ios-tutorial-uisearchbar-and-uisearchbardelegate/
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        searchActive = true;
+    }
+    func searchBarTextDidEndEditing(searchBar: UISearchBar) {
+        searchActive = false;
+    }
+    
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        print("\(searchText)")
+        
+        if searchText == "" {
+            tableView.hidden = true
+        } else {
+            tableView.hidden = false
+        }
+        
+        filtered = data.filter({ (text) -> Bool in
+            let tmp: NSString = text
+            let range = tmp.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch)
+            return range.location != NSNotFound
+        })
+        if(filtered.count == 0){
+            searchActive = false;
+        } else {
+            searchActive = true;
+        }
+        self.tableView.reloadData()
+        
+        for annotation in self.mapView.annotations {
+            if annotation is CustomAnnotation {
+                let ann = annotation as! CustomAnnotation
+                var fullName = ""
+                
+                if let _fullName = ann.user?.fullName {
+                    fullName = _fullName
+                }
+                
+                if fullName.containsString(searchText) {
+                    print("Found \(fullName)")
+                }
+                
+            }
+        }
+        
+    }
+
+}
+

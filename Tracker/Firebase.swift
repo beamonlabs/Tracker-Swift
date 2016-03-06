@@ -20,6 +20,8 @@ protocol FirebaseDBDelegate {
 }
 
 class FirebaseDB {
+    
+    static let sharedInstance = FirebaseDB()
 
     var ref: Firebase!
     
@@ -116,6 +118,7 @@ class FirebaseDB {
             let fbUserKey = userDefaults.stringForKey("FBUserKey") ?? deviceName
             let fullName = userDefaults.stringForKey("FullName") ?? ""
             let email = userDefaults.stringForKey("Email") ?? ""
+            let avatar = userDefaults.stringForKey("Avatar") ?? ""
             
             let formatter = NSDateFormatter()
             formatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
@@ -124,6 +127,7 @@ class FirebaseDB {
             let userLocation:[String : AnyObject] = [
                 "fullName": fullName,
                 "email": email,
+                "avatar": avatar,
                 "timestamp": timestamp,
                 "latitude": location.coordinate.latitude,
                 "longitude": location.coordinate.longitude

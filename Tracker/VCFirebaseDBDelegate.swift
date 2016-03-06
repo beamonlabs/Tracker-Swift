@@ -154,6 +154,9 @@ extension ViewController: FirebaseDBDelegate {
         
         if(!isContained) {
             self.users.append(user)
+            
+            self.data.append(user.fullName)
+            self.tableView.reloadData()
         }
         
         self.annotationCountLabel.text = String(self.users.count) + self.annotationCountLabelSuffix
