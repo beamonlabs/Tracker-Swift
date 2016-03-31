@@ -25,6 +25,7 @@
 		F893E1771C7D1014005F8535 /* VCMKMapViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F893E1761C7D1014005F8535 /* VCMKMapViewDelegate.swift */; };
 		F893E1811C84E431005F8535 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F893E1801C84E431005F8535 /* SettingsViewController.swift */; };
 		F8F879821C88CC3500D589DC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8F879811C88CC3500D589DC /* GoogleService-Info.plist */; };
+		F8F879BE1C8D96B100D589DC /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = F8F879BD1C8D96B100D589DC /* Settings.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		F893E1801C84E431005F8535 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		F8F8797E1C88C88C00D589DC /* Tracker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tracker-Bridging-Header.h"; sourceTree = "<group>"; };
 		F8F879811C88CC3500D589DC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		F8F879BD1C8D96B100D589DC /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +158,7 @@
 				F824B39E1C69FA2600B84A51 /* Main.storyboard */,
 				F824B3A11C69FA2600B84A51 /* Assets.xcassets */,
 				F824B3A31C69FA2600B84A51 /* LaunchScreen.storyboard */,
+				F8F879BD1C8D96B100D589DC /* Settings.bundle */,
 				F8F879811C88CC3500D589DC /* GoogleService-Info.plist */,
 				F824B3A61C69FA2600B84A51 /* Info.plist */,
 				F8F8797E1C88C88C00D589DC /* Tracker-Bridging-Header.h */,
@@ -298,6 +301,7 @@
 			files = (
 				F824B3A51C69FA2600B84A51 /* LaunchScreen.storyboard in Resources */,
 				F8F879821C88CC3500D589DC /* GoogleService-Info.plist in Resources */,
+				F8F879BE1C8D96B100D589DC /* Settings.bundle in Resources */,
 				F824B3A21C69FA2600B84A51 /* Assets.xcassets in Resources */,
 				F824B3A01C69FA2600B84A51 /* Main.storyboard in Resources */,
 			);

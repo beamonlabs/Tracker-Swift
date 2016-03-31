@@ -16,8 +16,10 @@ extension ViewController {
 
         self.firebase.attachEvents()
         
+        print("didBecomeActive \(userDefaults.objectForKey("track_location"))")
+
     }
-    
+
     // Callback:
     func applicationWillResignActiveNotification() {
         // Handle application will resign notification event.

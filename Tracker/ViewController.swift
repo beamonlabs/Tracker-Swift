@@ -106,7 +106,6 @@ class ViewController: UIViewController, GIDSignInUIDelegate {
         mapView.delegate = self
         mapView.mapType = .Standard
         
-        
         // table view and search bar
         tableView.delegate = self
         tableView.dataSource = self
@@ -116,15 +115,15 @@ class ViewController: UIViewController, GIDSignInUIDelegate {
         self.locationUpdateLabel.text = ""
         self.annotationCountLabel.text = ""
         
-        // Add observer:
-        notificationCenter.addObserver(self,
-            selector: Selector("applicationDidBecomeActiveNotification"),
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(ViewController.applicationDidBecomeActiveNotification),
             name: UIApplicationDidBecomeActiveNotification,
             object: nil)
-        
-        // Add observer:
-        notificationCenter.addObserver(self,
-            selector: Selector("applicationWillResignActiveNotification"),
+
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(ViewController.applicationWillResignActiveNotification),
             name: UIApplicationWillResignActiveNotification,
             object: nil)
     }
@@ -140,13 +139,16 @@ class ViewController: UIViewController, GIDSignInUIDelegate {
         } else {
             self.setStopUpdatingLocation()
         }
+        
+        print("appear \(userDefaults.objectForKey("track_location"))")
+        
         //self.firebase.attachEvents()
     }
 
     override func viewWillDisappear(animated: Bool) {
         self.firebase.detachEvents()
     }
-
+    
     /// <summary>
     ///  Helper method: what to do when tracking location enables
     /// </summary>

@@ -35,6 +35,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate, CLLoca
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         
+        let appInfo = NSBundle.mainBundle().infoDictionary! as Dictionary<String,AnyObject>
+        let shortVersionString = appInfo["CFBundleShortVersionString"] as! String
+        let bundleVersion = appInfo["CFBundleVersion"] as! String
+        let applicationVersion = shortVersionString + "." + bundleVersion
+        
+        
         /// Google SignIn needs ENABLE_BITCODE = NO to run on iPhone
         /// http://stackoverflow.com/questions/31205133/how-to-enable-bitcode-in-xcode-7
 
@@ -67,6 +73,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate, CLLoca
         ]
 
         userDefaults.registerDefaults(settings)
+
+        userDefaults.setObject(applicationVersion, forKey: "application_version")
+        //userDefaults.synchronize()
+        
         
         if userDefaults.boolForKey("UpdateLocation") {
             locationManager.delegate = self

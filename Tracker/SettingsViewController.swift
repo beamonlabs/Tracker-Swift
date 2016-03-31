@@ -51,7 +51,7 @@ class SettingsViewController: UITableViewController, GIDSignInUIDelegate {
         GIDSignIn.sharedInstance().uiDelegate = self
 
         NSNotificationCenter.defaultCenter().addObserver(self,
-            selector: "receiveToggleAuthUINotification:",
+            selector: #selector(SettingsViewController.receiveToggleAuthUINotification(_:)),
             name: "ToggleAuthUINotification",
             object: nil)
         

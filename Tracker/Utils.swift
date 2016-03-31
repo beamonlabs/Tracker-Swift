@@ -10,11 +10,13 @@ import Foundation
     
 class Utils {
     
-    class func replaceByDict (var str: String, dict: Dictionary<String, String>) -> String {
+    class func replaceByDict (str: String, dict: Dictionary<String, String>) -> String {
+        var _str:String = ""
+        
         for (key, value) in dict {
-            str = str.stringByReplacingOccurrencesOfString(key, withString: value).lowercaseString
+            _str = str.stringByReplacingOccurrencesOfString(key, withString: value).lowercaseString
         }
-        return str
+        return _str
     }
     
     /*
