@@ -7,26 +7,31 @@
 //
 
 import Foundation
-    
-class Utils {
-    
-    class func replaceByDict (str: String, dict: Dictionary<String, String>) -> String {
-        var _str:String = ""
+
+extension String {
+    func replace(target: String, withString: String) -> String {
+        return self.stringByReplacingOccurrencesOfString(target, withString: withString, options: NSStringCompareOptions.LiteralSearch, range: nil)
+    }
+}
+
+extension String {
+
+    func capitalize() -> String {
+        //break it into an array by delimiting the sentence using a space
+        let breakupSentence = self.componentsSeparatedByString(".")
+        var newSentence = ""
         
-        for (key, value) in dict {
-            _str = str.stringByReplacingOccurrencesOfString(key, withString: value).lowercaseString
+        //Loop the array and concatinate the capitalized word into a variable.
+        for wordInSentence in breakupSentence {
+            newSentence = "\(newSentence) \(wordInSentence.capitalizedString)"
         }
-        return _str
+        
+        return newSentence.trim()
     }
-    
-    /*
-    func delay(delay:Double, closure:()->()) {
-        dispatch_after(
-            dispatch_time(
-                DISPATCH_TIME_NOW,
-                Int64(delay * Double(NSEC_PER_SEC))
-            ),
-            dispatch_get_main_queue(), closure)
+}
+
+extension String {
+    func trim() -> String {
+        return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
     }
-    */
 }

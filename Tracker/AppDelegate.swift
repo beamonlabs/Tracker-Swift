@@ -77,7 +77,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate, CLLoca
         userDefaults.setObject(applicationVersion, forKey: "application_version")
         //userDefaults.synchronize()
         
-        
         if userDefaults.boolForKey("UpdateLocation") {
             locationManager.delegate = self
             locationManager.requestAlwaysAuthorization()
@@ -91,10 +90,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate, CLLoca
         
         return true
     }
-    
-    
-    
-    
     
     /// <summary>
     ///  GIDSignIn Helper method to open URL for auth redirect
@@ -179,7 +174,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate, CLLoca
                 object: nil,
                 userInfo: ["statusText": "User has disconnected."])
     }
-
     
     /// <summary>
     ///  Helper method: store the user settings
@@ -190,11 +184,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate, CLLoca
     func setUserDefaults(email: String, fullName: String, avatar: String) {
         
         // prepare Firebase user key by processing email address
-        let dictKeyFromEmail : Dictionary<String, String> = [
-            "@beamonpeople.se": "",
-            ".": " "
-        ]
-        let fbUserKey = Utils.replaceByDict(email, dict: dictKeyFromEmail)
+        let emailDomain = "@beamonpeople.se"
+        let fbUserKey = email.replace(emailDomain, withString: "").capitalize()
         
         self.userDefaults.setValue(fbUserKey, forKey: "FBUserKey")
         self.userDefaults.setValue(fullName, forKey: "FullName")
@@ -213,9 +204,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate, CLLoca
         self.userDefaults.setValue("", forKey: "Avatar")
         
     }
-    
-    
-    
     
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
