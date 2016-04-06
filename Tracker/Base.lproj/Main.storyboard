@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="PQr-on-Oyx">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="PQr-on-Oyx">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -20,6 +20,7 @@
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="JWJ-tZ-qyj">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <gestureRecognizers/>
                             </mapView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="s9Z-1V-i49">
                                 <rect key="frame" x="0.0" y="623" width="375" height="44"/>
@@ -65,25 +66,15 @@
                                 <rect key="frame" x="0.0" y="64" width="375" height="44"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
-                            <tableView hidden="YES" clipsSubviews="YES" alpha="0.94999999999999996" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="U6F-hU-7rX">
-                                <rect key="frame" x="0.0" y="108" width="375" height="256"/>
+                            <tableView hidden="YES" clipsSubviews="YES" alpha="0.94999999999999996" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="U6F-hU-7rX">
+                                <rect key="frame" x="0.0" y="108" width="375" height="282"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <view key="tableHeaderView" contentMode="scaleToFill" id="6uJ-CT-KPl">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gmr-zf-HqP">
-                                            <rect key="frame" x="166" y="15" width="42" height="21"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                    </subviews>
-                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                </view>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="282" id="6Ha-zt-wFp"/>
+                                </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="aCb-re-LiZ">
-                                        <rect key="frame" x="0.0" y="72" width="375" height="44"/>
+                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="aCb-re-LiZ" id="0yG-lj-kpM">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -100,14 +91,22 @@
                             <constraint firstItem="JWJ-tZ-qyj" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="9oE-Ga-lBF"/>
                             <constraint firstItem="JWJ-tZ-qyj" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="J3k-Qq-LAA"/>
                             <constraint firstItem="s9Z-1V-i49" firstAttribute="leading" secondItem="JWJ-tZ-qyj" secondAttribute="leading" id="S2C-bs-Fjn"/>
+                            <constraint firstItem="U6F-hU-7rX" firstAttribute="top" secondItem="DTZ-KE-8C0" secondAttribute="bottom" id="U0C-Us-nYt"/>
                             <constraint firstItem="DTZ-KE-8C0" firstAttribute="leading" secondItem="s9Z-1V-i49" secondAttribute="leading" id="Vg4-7K-d5a"/>
                             <constraint firstItem="s9Z-1V-i49" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="eND-is-oQv"/>
+                            <constraint firstItem="U6F-hU-7rX" firstAttribute="leading" secondItem="DTZ-KE-8C0" secondAttribute="leading" id="g6E-Zh-X2D"/>
+                            <constraint firstItem="U6F-hU-7rX" firstAttribute="trailing" secondItem="DTZ-KE-8C0" secondAttribute="trailing" id="hXP-px-wFr"/>
                             <constraint firstItem="JWJ-tZ-qyj" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="sMh-RW-DFh"/>
                             <constraint firstItem="DTZ-KE-8C0" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="vTl-4b-c7n"/>
                             <constraint firstItem="s9Z-1V-i49" firstAttribute="trailing" secondItem="JWJ-tZ-qyj" secondAttribute="trailing" id="ygf-KB-DmS"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Beamon People Tracker" id="FIv-sY-CvB">
+                        <barButtonItem key="leftBarButtonItem" systemItem="search" id="1q3-wf-fJ1">
+                            <connections>
+                                <action selector="onSearchButton:" destination="BYZ-38-t0r" id="rKf-hJ-m5b"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" image="ic_more_horiz" id="Dqc-Hp-klU">
                             <connections>
                                 <segue destination="RZe-4e-auy" kind="show" id="eHl-if-bxb"/>

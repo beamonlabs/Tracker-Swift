@@ -84,6 +84,8 @@ class ViewController: UIViewController, GIDSignInUIDelegate {
         
         super.viewDidLoad()
         
+        self.hideKeyboardWhenTappedAround() // when tapped on sth - end editing, e.g. search
+        
         GIDSignIn.sharedInstance().uiDelegate = self
 
         if (GIDSignIn.sharedInstance().hasAuthInKeychain()) {
@@ -241,7 +243,42 @@ class ViewController: UIViewController, GIDSignInUIDelegate {
         presentViewController(alertController, animated: true, completion: nil)
 
     }
+    
+    @IBAction func onSearchButton(sender: UIBarButtonItem) {
+        searchBar.hidden = !searchBar.hidden
+        
+        if(searchBar.hidden == true) {
+            searchBar.endEditing(true)
+            tableView.hidden = true
+        } else {
+            searchBar.becomeFirstResponder()
+            tableView.hidden = false
+        }
+    }
 
+}
+
+
+
+
+// Put this piece of code anywhere you like --- hideKeyboardWhenTapped
+/*
+extension UIViewController {
+}
+*/
+extension ViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard))
+        mapView.addGestureRecognizer(tap)
+    }
+    
+    func dismissKeyboard() {
+        view.endEditing(true)
+        searchBar.text = ""
+        
+        searchBar.hidden = true
+        tableView.hidden = true
+    }
 }
 
 
@@ -270,9 +307,64 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         return cell;
     }
 
+    /*
     func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
-        print("\(tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text)")
+        //print("\(tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text)")
+        
+        let selectedCellUsername = tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text
+        
+        for annotation in self.mapView.annotations {
+            if annotation is CustomAnnotation {
+                let ann = annotation as! CustomAnnotation
+                var fullName = ""
+                
+                if let _fullName = ann.user?.fullName {
+                    fullName = _fullName
+                }
+                
+                if fullName.containsString(selectedCellUsername!) {
+                    print("selected \(fullName)")
+                }
+                
+            }
+        }
+        
     }
+    */
+    
+    func tableView(tableView: UITableView, didHighlightRowAtIndexPath indexPath: NSIndexPath) {
+        let selectedCellUsername = tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text
+        
+        for annotation in self.mapView.annotations {
+            if annotation is CustomAnnotation {
+                let ann = annotation as! CustomAnnotation
+                var fullName = ""
+                
+                if let _fullName = ann.user?.fullName {
+                    fullName = _fullName
+                }
+                
+                if fullName.containsString(selectedCellUsername!) {
+                    //print("selected \(fullName) \(ann.user?.location)")
+                    
+                    // will hide search as well
+                    self.dismissKeyboard()
+                    
+                    let location = ann.user?.location
+                    
+                    let center = CLLocationCoordinate2D(latitude: location!.coordinate.latitude, longitude: location!.coordinate.longitude)
+                    let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+                    
+                    self.mapView.setRegion(region, animated: true)
+                    // select the annotation/show title
+                    self.mapView.selectAnnotation(ann, animated: true)
+                    
+                }
+                
+            }
+        }
+    }
+    
 
 }
 
@@ -282,31 +374,35 @@ extension ViewController: UISearchBarDelegate {
 
     /// http://shrikar.com/swift-ios-tutorial-uisearchbar-and-uisearchbardelegate/
     func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
-        searchActive = true;
+        if (searchBar.text?.characters.count > 0) {
+            searchActive = true
+        } else {
+            searchActive = false
+        }
     }
     func searchBarTextDidEndEditing(searchBar: UISearchBar) {
-        searchActive = false;
+        searchActive = false
     }
     
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         print("\(searchText)")
         
-        if searchText == "" {
-            tableView.hidden = true
-        } else {
-            tableView.hidden = false
-        }
-        
+        /*
         filtered = data.filter({ (text) -> Bool in
             let tmp: NSString = text
             let range = tmp.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch)
             return range.location != NSNotFound
         })
-        if(filtered.count == 0){
-            searchActive = false;
-        } else {
-            searchActive = true;
-        }
+        */
+        
+        filtered = data.filter() { $0.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch) != nil }
+        print("\(filtered)")
+        
+        
+        searchActive = !(filtered.count == 0)
+
+        self.tableView.hidden = (filtered.count == 0)
+        
         self.tableView.reloadData()
         
         for annotation in self.mapView.annotations {
