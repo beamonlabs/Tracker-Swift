@@ -33,10 +33,10 @@ class ViewController: UIViewController, GIDSignInUIDelegate {
     
     var users = [User]()
     
-    //var data = ["San Francisco","New York","San Jose","Chicago","Los Angeles","Austin","Seattle"]
-    var data = [String]()
-    var filtered:[String] = []
+    var data = [User]()
+    var filtered:[User] = []
 
+    
     let annotationCountLabelSuffix = " Beams"
     
     var defersLocationUpdates = false
@@ -274,7 +274,7 @@ extension ViewController {
     
     func dismissKeyboard() {
         view.endEditing(true)
-        searchBar.text = ""
+        searchActive = false
         
         searchBar.hidden = true
         tableView.hidden = true
@@ -299,39 +299,20 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as UITableViewCell;
-        if(searchActive){
-            cell.textLabel?.text = filtered[indexPath.row]
-        } else {
-            cell.textLabel?.text = data[indexPath.row];
-        }
+        
+        let currentItem = (searchActive) ? filtered[indexPath.row] : data[indexPath.row]
+        
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let d = dateFormatter.dateFromString(currentItem.timestamp)
+        let ds = d!.timeAgo
+        
+        cell.textLabel?.text = currentItem.fullName
+        cell.detailTextLabel?.text = ds + " " + currentItem.locationName
+        
         return cell;
     }
 
-    /*
-    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
-        //print("\(tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text)")
-        
-        let selectedCellUsername = tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text
-        
-        for annotation in self.mapView.annotations {
-            if annotation is CustomAnnotation {
-                let ann = annotation as! CustomAnnotation
-                var fullName = ""
-                
-                if let _fullName = ann.user?.fullName {
-                    fullName = _fullName
-                }
-                
-                if fullName.containsString(selectedCellUsername!) {
-                    print("selected \(fullName)")
-                }
-                
-            }
-        }
-        
-    }
-    */
-    
     func tableView(tableView: UITableView, didHighlightRowAtIndexPath indexPath: NSIndexPath) {
         let selectedCellUsername = tableView.cellForRowAtIndexPath(indexPath)?.textLabel!.text
         
@@ -385,42 +366,13 @@ extension ViewController: UISearchBarDelegate {
     }
     
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-        print("\(searchText)")
-        
-        /*
-        filtered = data.filter({ (text) -> Bool in
-            let tmp: NSString = text
-            let range = tmp.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch)
-            return range.location != NSNotFound
-        })
-        */
-        
-        filtered = data.filter() { $0.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch) != nil }
-        print("\(filtered)")
-        
+        filtered = data.filter() { $0.fullName.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch) != nil }
         
         searchActive = !(filtered.count == 0)
 
         self.tableView.hidden = (filtered.count == 0)
         
         self.tableView.reloadData()
-        
-        for annotation in self.mapView.annotations {
-            if annotation is CustomAnnotation {
-                let ann = annotation as! CustomAnnotation
-                var fullName = ""
-                
-                if let _fullName = ann.user?.fullName {
-                    fullName = _fullName
-                }
-                
-                if fullName.containsString(searchText) {
-                    print("Found \(fullName)")
-                }
-                
-            }
-        }
-        
     }
 
 }

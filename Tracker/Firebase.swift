@@ -242,7 +242,6 @@ class FirebaseDB {
         if let _timestamp = o.value["timestamp"] as? String {
             timestamp = _timestamp
         }
-
         
         return User(key: key, fullName: fullName, email: email, location: location, timestamp: timestamp)
     }

@@ -19,6 +19,7 @@
 		F824B3CD1C6B737B00B84A51 /* VCCLLocationManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F824B3CC1C6B737B00B84A51 /* VCCLLocationManagerDelegate.swift */; };
 		F824B3CF1C6CC90400B84A51 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F824B3CE1C6CC90400B84A51 /* User.swift */; };
 		F824B3D31C6FD5E100B84A51 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F824B3D21C6FD5E100B84A51 /* Utils.swift */; };
+		F85770FD1CB8F0F3000947BC /* NSDate.Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85770FC1CB8F0F2000947BC /* NSDate.Extension.swift */; };
 		F860E1701C77AD0500A1E3E1 /* Firebase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F860E16F1C77AD0500A1E3E1 /* Firebase.swift */; };
 		F860E1721C77BBE800A1E3E1 /* Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F860E1711C77BBE800A1E3E1 /* Observer.swift */; };
 		F893E1751C7D0F3F005F8535 /* VCFirebaseDBDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F893E1741C7D0F3F005F8535 /* VCFirebaseDBDelegate.swift */; };
@@ -66,6 +67,7 @@
 		F824B3CC1C6B737B00B84A51 /* VCCLLocationManagerDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VCCLLocationManagerDelegate.swift; sourceTree = "<group>"; };
 		F824B3CE1C6CC90400B84A51 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		F824B3D21C6FD5E100B84A51 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		F85770FC1CB8F0F2000947BC /* NSDate.Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSDate.Extension.swift; sourceTree = "<group>"; };
 		F860E16F1C77AD0500A1E3E1 /* Firebase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Firebase.swift; sourceTree = "<group>"; };
 		F860E1711C77BBE800A1E3E1 /* Observer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observer.swift; sourceTree = "<group>"; };
 		F893E1741C7D0F3F005F8535 /* VCFirebaseDBDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VCFirebaseDBDelegate.swift; sourceTree = "<group>"; };
@@ -147,6 +149,7 @@
 				F824B39A1C69FA2600B84A51 /* AppDelegate.swift */,
 				F893E1801C84E431005F8535 /* SettingsViewController.swift */,
 				F824B39C1C69FA2600B84A51 /* ViewController.swift */,
+				F85770FC1CB8F0F2000947BC /* NSDate.Extension.swift */,
 				F860E1711C77BBE800A1E3E1 /* Observer.swift */,
 				F860E16F1C77AD0500A1E3E1 /* Firebase.swift */,
 				F824B3CE1C6CC90400B84A51 /* User.swift */,
@@ -255,7 +258,7 @@
 				TargetAttributes = {
 					F824B3961C69FA2600B84A51 = {
 						CreatedOnToolsVersion = 7.2.1;
-						DevelopmentTeam = Z355R267LP;
+						DevelopmentTeam = ZDCGJ42AJB;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -379,6 +382,7 @@
 				F893E1751C7D0F3F005F8535 /* VCFirebaseDBDelegate.swift in Sources */,
 				F860E1721C77BBE800A1E3E1 /* Observer.swift in Sources */,
 				F893E1811C84E431005F8535 /* SettingsViewController.swift in Sources */,
+				F85770FD1CB8F0F3000947BC /* NSDate.Extension.swift in Sources */,
 				F824B3CD1C6B737B00B84A51 /* VCCLLocationManagerDelegate.swift in Sources */,
 				F824B39D1C69FA2600B84A51 /* ViewController.swift in Sources */,
 				F893E1771C7D1014005F8535 /* VCMKMapViewDelegate.swift in Sources */,
@@ -533,7 +537,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Tracker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = se.beamonpeople.Tracker;
+				PRODUCT_BUNDLE_IDENTIFIER = se.beamonpeople.BeamonPeopleTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Tracker/Tracker-Bridging-Header.h";
@@ -552,7 +556,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Tracker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = se.beamonpeople.Tracker;
+				PRODUCT_BUNDLE_IDENTIFIER = se.beamonpeople.BeamonPeopleTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Tracker/Tracker-Bridging-Header.h";

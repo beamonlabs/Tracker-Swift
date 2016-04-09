@@ -81,6 +81,10 @@ extension ViewController: FirebaseDBDelegate {
                 }
                 
                 print("[UPDATED] \(annotation.title!) @ \(annotation.subtitle!) <\(annotation.coordinate.latitude),\(annotation.coordinate.longitude)>")
+                
+                // update locationName in global users variable and reload table
+                user.setLocationName(annotation.subtitle!)
+                self.tableView.reloadData()
             }
             
         }
@@ -130,7 +134,10 @@ extension ViewController: FirebaseDBDelegate {
                 self.mapView.addAnnotation(annotation)
                 
                 print("[PINNED] \(annotation.title!) @ \(annotation.subtitle!) <\(annotation.coordinate.latitude),\(annotation.coordinate.longitude)>")
-                
+
+                // update locationName in global users variable and reload table
+                user.setLocationName(annotation.subtitle!)
+                self.tableView.reloadData()
             }
         }
         
@@ -154,8 +161,9 @@ extension ViewController: FirebaseDBDelegate {
         
         if(!isContained) {
             self.users.append(user)
+
+            self.data.append(user)
             
-            self.data.append(user.fullName)
             self.tableView.reloadData()
         }
         

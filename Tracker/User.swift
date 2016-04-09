@@ -9,7 +9,7 @@
 import Foundation
 import MapKit
 
-struct User {
+class User {
 
     var key: String = ""
 
@@ -18,6 +18,7 @@ struct User {
     var email: String = ""
     
     var location: CLLocation = CLLocation(latitude: 0, longitude: 0)
+    var locationName: String = ""
     
     var timestamp: String = ""
     
@@ -27,6 +28,10 @@ struct User {
         self.email = email
         self.location = location
         self.timestamp = timestamp
+    }
+    
+    func setLocationName(locationName: String) {
+        self.locationName = locationName
     }
 
 }
