@@ -284,6 +284,9 @@ extension ViewController {
 
 
 // special for TableView and Search
+/// http://stackoverflow.com/questions/11284321/what-is-the-height-of-iphones-onscreen-keyboard
+/// http://stackoverflow.com/questions/25874975/cant-get-correct-value-of-keyboard-height-in-ios8
+/// http://stackoverflow.com/questions/25851626/programatically-get-keyboard-frame-in-swift
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
